@@ -28,7 +28,8 @@ pub enum ThemeColor {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct AppMetadata {
-    pub path: PathBuf,
+    pub app_path: PathBuf,
+    pub launch_args: String,
     pub working_directory: PathBuf,
     pub description: String,
     pub icon_url: String
