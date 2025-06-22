@@ -1,23 +1,11 @@
 use std::fs::remove_file;
 use std::path::PathBuf;
 use rapid_toolbox_lib::config::Config;
-use rapid_toolbox_lib::config::structure::{AppMetadata, CategoryMetadata, Theme, ThemeColor, ToolboxVersion};
+use rapid_toolbox_lib::config::structure::{AppMetadata, Theme, ThemeColor, ToolboxVersion};
 use rapid_toolbox_lib::config::error::ConfigErrorType;
 
 struct Common;
 impl Common {
-    fn save_config(config: &Config) {
-        config.to_file("test_config.json").expect("Failed to create config file");
-    }
-
-    fn load_config() -> Config {
-        Config::from_file("test_config.json").expect("Failed to load config file")
-    }
-
-    fn cleanup_config() {
-        remove_file("test_config.json").expect("Failed to remove test config file");
-    }
-
     fn get_test_app_metadata() -> AppMetadata {
         AppMetadata {
             app_path: PathBuf::from("test_app.exe"),
@@ -46,10 +34,10 @@ impl Common {
 #[test]
 fn test_save_load() {
     let config = Common::get_test_config();
-    Common::save_config(&config);
-    let new_config = Common::load_config();
+    config.to_file("test_config.json").expect("Failed to create config file");
+    let new_config = Config::from_file("test_config.json").expect("Failed to load config file");
     assert_eq!(new_config, config);
-    Common::cleanup_config();
+    remove_file("test_config.json").expect("Failed to remove test config file");
 }
 
 #[test]
