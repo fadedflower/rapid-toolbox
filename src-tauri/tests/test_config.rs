@@ -1,7 +1,7 @@
 use std::fs::remove_file;
 use std::path::PathBuf;
 use rapid_toolbox_lib::config::Config;
-use rapid_toolbox_lib::config::structure::{AppMetadata, Theme, ThemeColor, ToolboxVersion};
+use rapid_toolbox_lib::config::structure::*;
 use rapid_toolbox_lib::config::error::ConfigErrorType;
 
 struct Common;

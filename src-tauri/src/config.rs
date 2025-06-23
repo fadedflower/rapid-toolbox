@@ -31,13 +31,13 @@ impl Config {
     }
 
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, ConfigError> {
-        let path_ref = path.as_ref();
-        let path_str = path_ref.to_string_lossy().to_string();
+        let path = path.as_ref();
+        let path_str = path.to_string_lossy().to_string();
         
-        if !path_ref.is_file() {
+        if !path.is_file() {
             return Err(ConfigError { err_type: ConfigErrorType::FileNotExist, config_path: Some(path_str) });
         }
-        match fs_read_to_string(path_ref) {
+        match fs_read_to_string(path) {
             Ok(content) => match serde_json::from_str(&content) {
                 Ok(config) => Ok(config),
                 Err(e) => Err(ConfigError { err_type: ConfigErrorType::ParseError(e), config_path: Some(path_str) })
@@ -47,8 +47,8 @@ impl Config {
     }
 
     pub fn to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), ConfigError> {
-        let path_ref = path.as_ref();
-        let path_str = path_ref.to_string_lossy().to_string();
+        let path = path.as_ref();
+        let path_str = path.to_string_lossy().to_string();
         let content = serde_json::to_string_pretty(self).expect("Failed to serialize config");
         
         if let Err(e) = fs_write(path, content) {
