@@ -51,14 +51,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useTemplateRef, computed, onMounted } from "vue";
+import { ref, useTemplateRef, computed, onMounted, watch } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import { invoke } from "@tauri-apps/api/core";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 import { DnDItem, DropEffect } from "../types";
 import { messageDialog } from "../util";
+import { useSingleMenu } from "../stores";
 import CategoryListItem from "./CategoryListItem.vue";
 const confirm = useConfirm();
+const singleMenu = useSingleMenu();
+const menuId = "category-menu";
 
 const categories = ref<string[]>([]);
 const dialogCategoryName = ref("");
@@ -162,8 +165,14 @@ const categoryMenuItems = ref<MenuItem[]>([
 ]);
 const onContextMenu = (event: PointerEvent, category: string) => {
     selectedContextMenuCategory.value = category;
+    singleMenu.open(menuId);
     categoryMenu.value?.show(event);
 };
+watch(singleMenu.getMenuId, newId => {
+    if (newId !== menuId) {
+        categoryMenu.value?.hide();
+    }
+});
 
 const categoriesOnDrag = ref<string[]>([]);
 const draggedCategory = ref<string | null>(null);

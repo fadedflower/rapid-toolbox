@@ -74,8 +74,11 @@ import { invoke } from "@tauri-apps/api/core";
 import { MenuItem } from "primevue/menuitem";
 import { AppMetadata, DnDItem, DropEffect } from "../types";
 import { messageDialog } from "../util";
+import { useSingleMenu } from "../stores";
 import GridAppItem from "./GridAppItem.vue";
 const confirm = useConfirm();
+const singleMenu = useSingleMenu();
+const menuId = "app-menu";
 
 const { category } = defineProps<{ category: string | null }>();
 
@@ -166,8 +169,14 @@ const appMenuItems = ref<MenuItem[]>([
 ]);
 const onContextMenu = (event: PointerEvent, appName: string) => {
     selectedContextMenuApp.value = appName;
+    singleMenu.open(menuId);
     appMenu.value?.show(event);
 };
+watch(singleMenu.getMenuId, (newId) => {
+    if (newId !== menuId) {
+        appMenu.value?.hide();
+    }
+});
 
 const appsOnDrag = ref<AppMetadata[]>([]);
 const appsShown = computed<AppMetadata[]>(() => draggedApp.value ? appsOnDrag.value : apps.value);
