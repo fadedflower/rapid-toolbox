@@ -80,6 +80,10 @@ impl Config {
         self.app_library.get(app_name)
     }
 
+    pub fn get_all_app_name_list(&self) -> Vec<&String> {
+        self.app_library.keys().collect()
+    }
+
     pub fn add_category(&mut self, category_name: &str) -> Result<(), ConfigError> {
         if self.categories.iter().any(|c| c.name == category_name) {
             return Err(ConfigError { err_type: ConfigErrorType::CategoryExist(category_name.to_string()), config_path: None });
@@ -102,6 +106,38 @@ impl Config {
 
     pub fn get_category(&self, category_name: &str) -> Option<&CategoryMetadata> {
         self.categories.iter().find(|c| c.name == category_name)
+    }
+
+    pub fn get_category_list(&self) -> Vec<&String> {
+        self.categories.iter().map(|c| &c.name).collect()
+    }
+
+    pub fn update_categories(&mut self, new_categories: Vec<String>) -> Result<(), ConfigError> {
+        let mut updated_list: Vec<CategoryMetadata> = Vec::new();
+        for ct in &new_categories {
+            if let Some(category_metadata) = self.get_category(ct) {
+                updated_list.push(category_metadata.clone());
+            } else {
+                return Err(ConfigError { err_type: ConfigErrorType::CategoryNotExist(ct.to_string()), config_path: None });
+            }
+        }
+        self.categories = updated_list;
+        Ok(())
+    }
+
+    pub fn rename_category(&mut self, category_name: &str, new_category_name: &str) -> Result<(), ConfigError> {
+        if category_name == new_category_name {
+            return Ok(()); // No change needed
+        }
+        if self.categories.iter().any(|c| c.name == new_category_name) {
+            return Err(ConfigError { err_type: ConfigErrorType::CategoryExist(new_category_name.to_string()), config_path: None });
+        }
+        if let Some(category) = self.categories.iter_mut().find(|c| c.name == category_name) {
+            category.name = new_category_name.to_string();
+            Ok(())
+        } else {
+            Err(ConfigError { err_type: ConfigErrorType::CategoryNotExist(category_name.to_string()), config_path: None })
+        }
     }
 
     pub fn add_app_to_category(&mut self, app_name: &str, category_name: &str) -> Result<(), ConfigError> {
@@ -128,6 +164,20 @@ impl Config {
                 return Err(ConfigError { err_type: ConfigErrorType::AppNotExistInCategory(app_name.to_string(), category_name.to_string()), config_path: None });
             }
             category.apps.retain(|app| app != app_name);
+            Ok(())
+        } else {
+            Err(ConfigError { err_type: ConfigErrorType::CategoryNotExist(category_name.to_string()), config_path: None })
+        }
+    }
+
+    pub fn update_apps_in_category(&mut self, new_apps: Vec<String>, category_name: &str) -> Result<(), ConfigError> {
+        if let Some(category) = self.categories.iter_mut().find(|c| c.name == category_name) {
+            for app in &new_apps {
+                if !self.app_library.contains_key(app) {
+                    return Err(ConfigError { err_type: ConfigErrorType::AppNotExist(app.to_string()), config_path: None });
+                }
+            }
+            category.apps = new_apps;
             Ok(())
         } else {
             Err(ConfigError { err_type: ConfigErrorType::CategoryNotExist(category_name.to_string()), config_path: None })

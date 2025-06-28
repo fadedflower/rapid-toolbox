@@ -1,13 +1,26 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import Components from 'unplugin-vue-components/vite';
+import { PrimeVueResolver } from '@primevue/auto-import-resolver';
+import { visualizer } from "rollup-plugin-visualizer";
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [vue()],
-
+  plugins: [
+    vue(),
+    Components({
+      resolvers: [PrimeVueResolver()]
+    }),
+    visualizer({
+      open: false,
+      filename: "stats.html",
+      gzipSize: true,
+      brotliSize: true
+    })
+  ],
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
   // 1. prevent vite from obscuring rust errors
@@ -29,4 +42,16 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  // optimize bundle
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vue: ["@vue/runtime-core", "@vue/runtime-dom", "@vue/reactivity", "@vue/shared"],
+          primevue: ["primevue/multiselect", "primevue/dialog", "primevue/contextmenu", "primevue/virtualscroller"],
+          tauri: ["@tauri-apps/api"]
+        }
+      }
+    }
+  }
 }));

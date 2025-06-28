@@ -30,8 +30,8 @@ pub enum ThemeColor {
 pub struct AppMetadata {
     pub app_path: PathBuf,
     pub launch_args: String,
-    pub working_directory: PathBuf,
-    pub description: String,
+    pub working_dir: PathBuf,
+    pub desc: String,
     pub icon_url: String
 }
 

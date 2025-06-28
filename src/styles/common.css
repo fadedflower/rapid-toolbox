@@ -1,0 +1,44 @@
+:root {
+    --app-width: 1025px;
+    --app-height: 600px;
+}
+
+.flex { display: flex;}
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.flex-basis-full { flex-basis: 100%; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-space-between { justify-content: space-between; }
+.align-center { align-items: center; }
+
+.gap-2 { gap: 2px; }
+
+.width-full { width: 100%; }
+.height-full { height: 100%; }
+.width-app { width: var(--app-width);}
+.height-app { height: var(--app-height);}
+.width-dialog { width: 30rem; }
+
+.no-select { user-select: none; }
+.dialog-no-select .p-dialog-title { user-select: none;}
+
+.hidden { display: none !important; }
+
+.btn-tooltip {
+    --p-tooltip-background: rgb(from var(--p-surface-700) r g b / .9);
+}
+.btn-tooltip .p-tooltip-text {
+    font-size: .8rem;
+}
+
+.empty-placeholder-text {
+    color: rgb(255 255 255 / .3);
+    font-size: 1rem;
+}
+
+.scroll-panel {
+    --p-scrollpanel-bar-background: rgb(255 255 255 / .7);
+    --p-scrollpanel-bar-size: 5px;
+}

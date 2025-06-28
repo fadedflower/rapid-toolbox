@@ -51,8 +51,7 @@ pub fn encode_image_url_from_app_icon<P: AsRef<Path>>(path: P) -> Option<String>
             FILE_FLAGS_AND_ATTRIBUTES(0),
             Some(&mut file_info),
             size_of::<SHFILEINFOW>() as u32,
-            SHGFI_SYSICONINDEX
-            )== 0 {
+            SHGFI_SYSICONINDEX) == 0 {
             return None;
         }
         // get icon handle
@@ -123,4 +122,10 @@ pub fn encode_image_url_from_app_icon<P: AsRef<Path>>(path: P) -> Option<String>
 
     img.write_to(&mut Cursor::new(&mut encoded_img_buf), ImageFormat::Png).expect("Failed to encode image");    
     Some(encode_image_url_from_bytes(encoded_img_buf, "image/png".to_string()))
+}
+
+#[cfg(target_os = "macos")]
+pub fn encode_image_url_from_app_icon<P: AsRef<Path>>(path: P) -> Option<String> {
+    // TODO: implement icon extraction
+    None
 }

@@ -1,17 +1,41 @@
 pub mod config;
 pub mod util;
+mod commands;
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+use std::sync::Mutex;
+use tauri::{Builder, Manager, generate_handler, generate_context};
+use tauri_plugin_prevent_default::Flags;
+use config::Config;
+use commands::*;
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let prevent_default_plugin = tauri_plugin_prevent_default::Builder::new()
+        .with_flags(Flags::all().difference(Flags::CONTEXT_MENU))
+        .build();
+
+    Builder::default()
+        .setup(|app| {
+            app.manage(Mutex::new(Config::new()));
+            Ok(())
+        })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
-        .run(tauri::generate_context!())
+        .plugin(prevent_default_plugin)
+        .plugin(tauri_plugin_positioner::init())
+        .invoke_handler(generate_handler![
+            load_config,
+            launch_app,
+            get_category_list,
+            get_all_app_list,
+            get_app_list_by_category,
+            get_available_app_list_by_category,
+            add_category,
+            update_categories,
+            rename_category,
+            add_app_to_category,
+            add_app_list_to_category,
+            update_apps_in_category,
+            show_window
+        ])
+        .run(generate_context!())
         .expect("error while running tauri application");
 }
