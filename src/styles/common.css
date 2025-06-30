@@ -7,6 +7,7 @@
 .flex-col { flex-direction: column; }
 .flex-row { flex-direction: row; }
 .flex-basis-full { flex-basis: 100%; }
+.flex-grow { flex-grow: 1; }
 .flex-wrap { flex-wrap: wrap; }
 .justify-center { justify-content: center; }
 .justify-end { justify-content: flex-end; }
@@ -14,6 +15,8 @@
 .align-center { align-items: center; }
 
 .gap-2 { gap: 2px; }
+.gap-4 { gap: 4px; }
+.gap-8 { gap: 8px; }
 
 .width-full { width: 100%; }
 .height-full { height: 100%; }
@@ -41,4 +44,9 @@
 .scroll-panel {
     --p-scrollpanel-bar-background: rgb(255 255 255 / .7);
     --p-scrollpanel-bar-size: 5px;
+}
+
+.dialog-label {
+    font-size: 1rem;
+    font-weight: 500;
 }

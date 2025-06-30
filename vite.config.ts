@@ -48,8 +48,9 @@ export default defineConfig(async () => ({
       output: {
         manualChunks: {
           vue: ["@vue/runtime-core", "@vue/runtime-dom", "@vue/reactivity", "@vue/shared"],
-          primevue: ["primevue/multiselect", "primevue/dialog", "primevue/contextmenu", "primevue/virtualscroller"],
-          tauri: ["@tauri-apps/api"]
+          primevue: ["primevue/multiselect", "primevue/select", "primevue/dialog", "primevue/confirmdialog", "primevue/contextmenu", "primevue/virtualscroller", "primevue/menu", "primevue/tooltip", "primevue/splitter"],
+          tauri: ["@tauri-apps/api"],
+          "vue-color": ["vue-color"]
         }
       }
     }

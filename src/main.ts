@@ -5,7 +5,8 @@ import ConfirmationService from 'primevue/confirmationservice';
 import Tooltip from "primevue/tooltip";
 import { definePreset } from "@primeuix/themes";
 import Aura from "@primeuix/themes/aura";
-import 'primeicons/primeicons.css'
+import 'primeicons/primeicons.css';
+import 'vue-color/style.css';
 import WindowFrame from "./WindowFrame.vue";
 import './styles/common.css';
 

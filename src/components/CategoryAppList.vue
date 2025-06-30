@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col gap-2 height-full">
-        <div class="app-list">
+        <div class="app-list" @click="deselectApp">
             <div class="app-toolbar flex justify-space-between align-center">
                 <span class="app-toolbar-title no-select">Apps</span>
                 <Button
@@ -12,7 +12,7 @@
                     @click="showAddDialog"
                 />
             </div>
-            <ScrollPanel v-if="appsShown.length > 0" class="app-list-scroll-panel scroll-panel" @click="deselectApp">
+            <ScrollPanel v-if="appsShown.length > 0" class="app-list-scroll-panel scroll-panel">
                 <div class="app-list-items flex flex-wrap">
                     <GridAppItem
                         v-for="app in appsShown"
@@ -71,7 +71,7 @@
 import { ref, computed, useTemplateRef, watch } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import { invoke } from "@tauri-apps/api/core";
-import { MenuItem } from "primevue/menuitem";
+import type { MenuItem } from "primevue/menuitem";
 import { AppMetadata, DnDItem, DropEffect } from "../types";
 import { messageDialog } from "../util";
 import { useSingleMenu } from "../stores";
@@ -128,7 +128,8 @@ const addApps = async () => {
 };
 
 const deselectApp = (event: MouseEvent) => {
-    if (event.target instanceof HTMLElement && (event.target.classList.contains("p-scrollpanel-content") || event.target.classList.contains("app-list-items"))) {
+    if (event.target instanceof HTMLElement &&
+        (event.target.classList.contains("p-scrollpanel-content") || event.target.classList.contains("app-list-items") || event.target.classList.contains("app-toolbar"))) {
         selectedApp.value = null;
     }
 };
@@ -159,7 +160,7 @@ const confirmRemoval = () => {
             selectedContextMenuApp.value = null;
         }
     });
-}
+};
 
 const selectedContextMenuApp = ref<string | null>(null);
 const appMenu = useTemplateRef("app-menu");
@@ -172,7 +173,7 @@ const onContextMenu = (event: PointerEvent, appName: string) => {
     singleMenu.open(menuId);
     appMenu.value?.show(event);
 };
-watch(singleMenu.getMenuId, (newId) => {
+watch(singleMenu.getMenuId, newId => {
     if (newId !== menuId) {
         appMenu.value?.hide();
     }

@@ -24,7 +24,10 @@ impl Config {
             header_text: String::from("Rapid Toolbox"),
             author: None,
             toolbox_version: None,
-            theme: Theme::Solid { color: ThemeColor::RGB { r: 52, g: 152, b: 219 } },
+            theme: Theme::LinearGradient {
+                from: ThemeColor::RGB { r: 0x28, g: 0x54, b: 0xB5 },
+                to: ThemeColor::RGB { r: 0x14, g: 0xC0, b: 0xD3 },
+            },
             app_library: HashMap::new(),
             categories: Vec::new()
         }

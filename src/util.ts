@@ -1,4 +1,5 @@
 import { ConfirmationOptions } from "primevue/confirmationoptions";
+import { Theme, ThemeColor } from "./types";
 
 type MessageDialogIcon = "info" | "warning" | "error" | "success";
 interface ConfirmInstance {
@@ -43,4 +44,35 @@ export function messageDialog(confirm: ConfirmInstance, header: string, message:
             }
         }
     });
+}
+
+export function getThemeColorCssValue(color: ThemeColor) {
+    switch (color.type) {
+        case "RGB":
+            return `rgb(${color.r}, ${color.g}, ${color.b})`;
+        case "HSL":
+            return `hsl(${color.h}, ${color.s}%, ${color.l}%)`;
+    }
+}
+
+export function getThemeStyle(theme: Theme) {
+    switch (theme.type) {
+        case "Solid":
+            return { backgroundColor: getThemeColorCssValue(theme.color) };
+        case "LinearGradient":
+            return { background: `linear-gradient(to top right, ${getThemeColorCssValue(theme.from)}, ${getThemeColorCssValue(theme.to)})` };
+        case "RadialGradient":
+            return { background: `radial-gradient(circle, ${getThemeColorCssValue(theme.from)} 0%, ${getThemeColorCssValue(theme.to)} 100%)` };
+    }
+}
+
+export function cloneTheme(theme: Theme): Theme {
+    switch (theme.type) {
+        case "Solid":
+            return { type: "Solid", color: { ...theme.color } };
+        case "LinearGradient":
+            return { type: "LinearGradient", from: { ...theme.from }, to: { ...theme.to } };
+        case "RadialGradient":
+            return { type: "RadialGradient", from: { ...theme.from }, to: { ...theme.to } };
+    }
 }

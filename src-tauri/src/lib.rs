@@ -23,6 +23,8 @@ pub fn run() {
         .plugin(tauri_plugin_positioner::init())
         .invoke_handler(generate_handler![
             load_config,
+            get_config_basic_info,
+            set_config_basic_info,
             launch_app,
             get_category_list,
             get_all_app_list,

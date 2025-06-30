@@ -2,9 +2,9 @@ use std::sync::Mutex;
 use std::path::PathBuf;
 use std::path::Path;
 use std::process::Command;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use tauri::{command, State};
-use super::config::{Config, structure::AppMetadata};
+use super::config::{Config, structure::{AppMetadata, ToolboxVersion, Theme}};
 
 // corresponding to the AppMetadata interface in types.ts
 #[derive(Serialize)]
@@ -31,6 +31,27 @@ impl From<&AppMetadata> for AppMetadataWithName {
     }
 }
 
+// corresponding to the ConfigBasicInfo interface in types.ts
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConfigBasicInfo {
+    pub header_text: String,
+    pub author: Option<String>,
+    pub toolbox_version: Option<ToolboxVersion>,
+    pub theme: Theme
+}
+
+impl From<&Config> for ConfigBasicInfo {
+    fn from(config: &Config) -> Self {
+        Self {
+            header_text: config.header_text.clone(),
+            author: config.author.clone(),
+            toolbox_version: config.toolbox_version.clone(),
+            theme: config.theme.clone()
+        }
+    }
+}
+
 #[command]
 pub fn load_config(config_state: State<Mutex<Config>>) -> bool {
     let mut config = config_state.lock().unwrap();
@@ -43,6 +64,22 @@ pub fn load_config(config_state: State<Mutex<Config>>) -> bool {
         *config = Config::new();
         config.to_file("config.json").is_ok()
     }
+}
+
+#[command]
+pub fn get_config_basic_info(config_state: State<Mutex<Config>>) -> ConfigBasicInfo {
+    let config = config_state.lock().unwrap();
+    ConfigBasicInfo::from(&*config)
+}
+
+#[command]
+pub fn set_config_basic_info(config_state: State<Mutex<Config>>, basic_info: ConfigBasicInfo) -> bool {
+    let mut config = config_state.lock().unwrap();
+    config.header_text = basic_info.header_text;
+    config.author = basic_info.author;
+    config.toolbox_version = basic_info.toolbox_version;
+    config.theme = basic_info.theme;
+    config.to_file("config.json").is_ok()
 }
 
 #[command]

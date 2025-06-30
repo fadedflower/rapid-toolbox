@@ -34,14 +34,14 @@
         </div>
     </div>
     <Dialog class="width-dialog dialog-no-select" v-model:visible="addDialogVisible" modal header="Add category">
-        <InputText class="width-full" size="small" v-model="dialogCategoryName" placeholder="Name" autofocus />
+        <InputText class="width-full" size="small" v-model="dialogCategoryName" placeholder="Name" autofocus autocomplete="off" />
         <template #footer>
             <Button label="Cancel"  size="small" severity="secondary" @click="addDialogVisible = false" />
             <Button label="Add"  size="small" :disabled="dialogCategoryName.trim() === '' || categories.includes(dialogCategoryName)" @click="addCategory" />
         </template>
     </Dialog>
     <Dialog class="width-dialog dialog-no-select" v-model:visible="renameDialogVisible" modal header="Rename category">
-        <InputText class="width-full" size="small" v-model="dialogCategoryName" placeholder="Name" autofocus />
+        <InputText class="width-full" size="small" v-model="dialogCategoryName" placeholder="Name" autofocus autocomplete="off" />
         <template #footer>
             <Button label="Cancel" size="small" severity="secondary" @click="renameDialogVisible = false" />
             <Button label="Rename" size="small" :disabled="dialogCategoryName.trim() === '' || categories.includes(dialogCategoryName)" @click="renameCategory" />
@@ -135,20 +135,20 @@ const confirmRemoval = () => {
             selectedContextMenuCategory.value = null;
         }
     });
-}
+};
 
 const categoryMoveUp = () => {
     const index = categories.value.indexOf(selectedContextMenuCategory.value!);
     let newCategories = categories.value;
     [newCategories[index], newCategories[index - 1]] = [newCategories[index - 1], newCategories[index]];
     updateCategories(newCategories);
-}
+};
 const categoryMoveDown = () => {
     const index = categories.value.indexOf(selectedContextMenuCategory.value!);
     let newCategories = categories.value;
     [newCategories[index], newCategories[index + 1]] = [newCategories[index + 1], newCategories[index]];
     updateCategories(newCategories);
-}
+};
 
 const selectedContextMenuCategory = ref<string | null>(null);
 const categoryMenu = useTemplateRef("category-menu");
