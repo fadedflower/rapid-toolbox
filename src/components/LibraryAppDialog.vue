@@ -86,7 +86,7 @@ const dialogAppMetadata = ref<AppMetadata>({
 });
 const dialogAppMetadataValid = computed(() => {
     return dialogAppMetadata.value?.name.trim() !== "" &&
-        apps.findIndex(app => app.name === dialogAppMetadata.value?.name) === -1 &&
+        (editApp?.name === dialogAppMetadata.value?.name.trim() || apps.findIndex(app => app.name === dialogAppMetadata.value?.name) === -1) &&
         dialogAppMetadata.value?.appPath.trim() !== "" &&
         dialogAppMetadata.value?.workingDir.trim() !== "" &&
         dialogAppMetadata.value?.iconUrl.trim() !== "";
