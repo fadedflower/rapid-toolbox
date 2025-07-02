@@ -15,6 +15,7 @@
             v-model:context-menu-selection="selectedContextMenuApp"
             v-model:filters="filters"
             :global-filter-fields="['name']"
+            table-style="max-width: 100%"
             @row-contextmenu="onContextMenu"
             @keydown.delete="removeOnKeyDown"
             @keydown.e="editOnKeyDown"
@@ -24,7 +25,6 @@
             resizable-columns
             show-gridlines
             striped-rows
-            reorderable-columns
             context-menu
         >
             <template #header>
@@ -235,6 +235,37 @@ onMounted(async () => {
 </style>
 
 <style>
-#app-library-table .p-datatable-tbody { font-size: 0.8rem; }
+#app-library-table .p-datatable-tbody,
 #app-library-table .p-datatable-column-title { font-size: 0.8rem; }
+#app-library-table .p-datatable-tbody td { text-overflow: ellipsis; }
+/* icon column */
+#app-library-table th:nth-child(1),
+#app-library-table td:nth-child(1) {
+    max-width: 30px;
+}
+/* name column */
+#app-library-table th:nth-child(2),
+#app-library-table td:nth-child(2) {
+    max-width: 250px;
+}
+/* desc column */
+#app-library-table th:nth-child(3),
+#app-library-table td:nth-child(3) {
+    max-width: 250px;
+}
+/* app path column */
+#app-library-table th:nth-child(4),
+#app-library-table td:nth-child(4) {
+    max-width: 175px;
+}
+/* launch args column */
+#app-library-table th:nth-child(5),
+#app-library-table td:nth-child(5) {
+    max-width: 100px;
+}
+/* working dir column */
+#app-library-table th:nth-child(6),
+#app-library-table td:nth-child(6) {
+    max-width: 170px;
+}
 </style>
