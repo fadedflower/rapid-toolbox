@@ -2,12 +2,14 @@ use std::sync::Mutex;
 use std::path::PathBuf;
 use std::path::Path;
 use std::process::Command;
+use std::env::current_dir;
 use serde::{Serialize, Deserialize};
 use tauri::{command, State};
 use super::config::{Config, structure::{AppMetadata, ToolboxVersion, Theme}};
+use super::util::*;
 
 // corresponding to the AppMetadata interface in types.ts
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppMetadataWithName {
     pub name: String,
@@ -208,6 +210,52 @@ pub fn add_app_list_to_category(config_state: State<Mutex<Config>>, apps: Vec<St
 pub fn update_apps_in_category(config_state: State<Mutex<Config>>, apps: Vec<String>, category: String) -> bool {
     let mut config = config_state.lock().unwrap();
     config.update_apps_in_category(apps, &category).and_then(|_| { config.to_file("config.json") }).is_ok()
+}
+
+#[command]
+pub fn add_app(config_state: State<Mutex<Config>>, app_metadata_with_name: AppMetadataWithName) -> bool {
+    let mut config = config_state.lock().unwrap();
+    let app_metadata = AppMetadata::from(&app_metadata_with_name);
+    config.add_app(&app_metadata_with_name.name, app_metadata).and_then(|_| { config.to_file("config.json") }).is_ok()
+}
+
+#[command]
+pub fn update_app(config_state: State<Mutex<Config>>, app_name: String, app_metadata_with_name: AppMetadataWithName) -> bool {
+    let mut config = config_state.lock().unwrap();
+    let app_metadata = AppMetadata::from(&app_metadata_with_name);
+    // rename the app if necessary
+    if app_name != app_metadata_with_name.name && config.rename_app(&app_name, &app_metadata_with_name.name).is_err() {
+        dbg!("Failed to rename app: {} to {}", app_name, app_metadata_with_name.name);
+        false
+    } else {
+        config.update_app(&app_metadata_with_name.name, app_metadata).and_then(|_| { config.to_file("config.json") }).is_ok()
+    }
+}
+
+#[command]
+pub fn remove_app(config_state: State<Mutex<Config>>, app_name: String) -> bool {
+    let mut config = config_state.lock().unwrap();
+    config.remove_app(&app_name).and_then(|_| { config.to_file("config.json") }).is_ok()
+}
+
+#[command]
+pub fn load_icon_from_file(path: String) -> Option<String> {
+    encode_image_url_from_file(path).ok()
+}
+
+#[command]
+pub fn load_icon_from_app(path: String) -> Option<String> {
+    encode_image_url_from_app_icon(path)
+}
+
+#[command]
+pub fn get_relative_path(path: String) -> Option<String> {
+    let current_dir_path = current_dir().ok()?;
+    if Path::new(&path) == current_dir_path.parent()? {
+        return Some(".".to_string());
+    }
+    Path::new(&path).strip_prefix(current_dir_path.parent()?)
+        .and_then(|p| Ok(p.to_string_lossy().to_string())).ok()
 }
 
 #[command]

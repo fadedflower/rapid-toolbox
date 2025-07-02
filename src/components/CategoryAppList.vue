@@ -1,13 +1,14 @@
 <template>
     <div class="flex flex-col gap-2 height-full">
         <div class="app-list" @click="deselectApp">
-            <div class="app-toolbar flex justify-space-between align-center">
-                <span class="app-toolbar-title no-select">Apps</span>
+            <div class="toolbar flex justify-space-between align-center">
+                <span class="toolbar-title no-select">Apps</span>
                 <Button
-                    class="app-toolbar-btn"
-                    icon="pi pi-plus"
+                    class="toolbar-btn"
+                    icon="pi pi-plus-circle"
                     variant="text"
                     size="small"
+                    :disabled="category === null"
                     v-tooltip.bottom="{ value: 'Add apps', class: 'btn-tooltip', showDelay: 700 }"
                     @click="showAddDialog"
                 />
@@ -34,7 +35,7 @@
                 <span class="empty-placeholder-text no-select">No apps available</span>
             </div>
         </div>
-        <div class="app-desc-bar no-select">{{ selectedAppDesc }}</div>
+        <div class="app-desc-bar no-select">{{ selectedAppDesc === "" ? "< No description >" : selectedAppDesc }}</div>
     </div>
     <Dialog class="width-dialog dialog-no-select" v-model:visible="addDialogVisible" modal header="Add apps">
         <MultiSelect
@@ -135,7 +136,6 @@ const deselectApp = (event: MouseEvent) => {
 };
 
 const confirmRemoval = () => {
-    console.log("confirmRemoval ", selectedContextMenuApp.value);
     confirm.require({
         message: `Do you want to remove app "${selectedContextMenuApp.value}"?`,
         header: "Remove app",
@@ -166,7 +166,7 @@ const selectedContextMenuApp = ref<string | null>(null);
 const appMenu = useTemplateRef("app-menu");
 const appMenuItems = ref<MenuItem[]>([
     { label: "Launch", icon: "pi pi-play", command: () => launchApp(selectedContextMenuApp.value!) },
-    { label: "Remove", icon: "pi pi-times", command: confirmRemoval }
+    { label: "Remove", icon: "pi pi-trash", command: confirmRemoval }
 ]);
 const onContextMenu = (event: PointerEvent, appName: string) => {
     selectedContextMenuApp.value = appName;
@@ -220,23 +220,6 @@ const onDrop = (event: DragEvent) => {
     height: calc(100% - 28px - 4px - 2px);
     margin-right: 4px;
     background-color: rgb(255 255 255 / .13);
-}
-.app-toolbar {
-    padding: var(--p-list-padding);
-    padding-left: .6rem;
-}
-.app-toolbar-title {
-    color: white;
-    font-size: .7rem;
-}
-.app-toolbar-btn {
-    --p-button-sm-font-size: .6rem;
-    --p-button-sm-padding-y: .1rem;
-    --p-button-sm-padding-x: 0;
-    --p-button-sm-icon-only-width: 1.2rem;
-    --p-button-text-primary-color: white;
-    --p-button-text-primary-hover-background: rgb(255 255 255 / .3);
-    --p-button-text-primary-active-background: rgb(255 255 255 / .5);
 }
 .app-list-items {
     padding: var(--p-list-padding);

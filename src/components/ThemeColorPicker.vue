@@ -12,7 +12,7 @@ import { ThemeColor } from "../types";
 import { getThemeColorCssValue } from "../util";
 type RawColor = { r: number, g: number, b: number } | { h: number, s: number, l: number };
 
-const color = defineModel<ThemeColor>();
+const color = defineModel<ThemeColor>({ default: { type: "RGB", r: 0, g: 0, b: 0 } });
 const rawColor = computed<RawColor>({
     get: () => themeColorToRawColor(color.value || { type: "RGB", r: 0, g: 0, b: 0 }),
     set: value => {

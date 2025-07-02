@@ -1,10 +1,10 @@
 <template>
     <div class="category-panel flex flex-col">
-        <div class="category-toolbar flex justify-space-between align-center">
-            <span class="category-toolbar-title no-select">Category</span>
+        <div class="toolbar flex justify-space-between align-center">
+            <span class="toolbar-title no-select">Category</span>
             <Button
-                class="category-toolbar-btn"
-                icon="pi pi-plus"
+                class="toolbar-btn"
+                icon="pi pi-plus-circle"
                 variant="text"
                 size="small"
                 v-tooltip.bottom="{ value: 'Add category', class: 'btn-tooltip', showDelay: 700 }"
@@ -65,7 +65,7 @@ const menuId = "category-menu";
 
 const categories = ref<string[]>([]);
 const dialogCategoryName = ref("");
-const selectedCategory = defineModel<string | null>();
+const selectedCategory = defineModel<string | null>({ default: null });
 onMounted(async () => {
     categories.value = await invoke<string[]>("get_category_list");
     if (categories.value.length > 0) {
@@ -107,7 +107,6 @@ const updateCategories = async (newCategories: string[]) => {
 };
 
 const confirmRemoval = () => {
-    console.log("confirmRemoval ", selectedContextMenuCategory.value);
     confirm.require({
         message: `Do you want to remove category "${selectedContextMenuCategory.value}"?`,
         header: "Remove category",
@@ -161,7 +160,7 @@ const categoryMenuItems = ref<MenuItem[]>([
         visible: () => categories.value.indexOf(selectedContextMenuCategory.value!) !== categories.value.length - 1
     },
     { separator: true },
-    { label: "Remove", icon: "pi pi-times", command: confirmRemoval }
+    { label: "Remove", icon: "pi pi-trash", command: confirmRemoval }
 ]);
 const onContextMenu = (event: PointerEvent, category: string) => {
     selectedContextMenuCategory.value = category;
@@ -222,23 +221,6 @@ const onDrop = async (event: DragEvent, categoryName: string) => {
 .category-panel {
     width: 100%;
     background-color: rgb(255 255 255 / .13);
-}
-.category-toolbar {
-    padding: var(--p-list-padding);
-    padding-left: .6rem;
-}
-.category-toolbar-title {
-    color: white;
-    font-size: .7rem;
-}
-.category-toolbar-btn {
-    --p-button-sm-font-size: .6rem;
-    --p-button-sm-padding-y: .1rem;
-    --p-button-sm-padding-x: 0;
-    --p-button-sm-icon-only-width: 1.2rem;
-    --p-button-text-primary-color: white;
-    --p-button-text-primary-hover-background: rgb(255 255 255 / .3);
-    --p-button-text-primary-active-background: rgb(255 255 255 / .5);
 }
 .category-list {
     margin: 0;

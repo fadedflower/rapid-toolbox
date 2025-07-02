@@ -1,13 +1,13 @@
 <template>
     <div id="app-container" class="width-app height-app flex flex-col" :style="themeStyle">
-        <Toolbar id="title-bar" data-tauri-drag-region>
+        <Toolbar id="title-bar" data-tauri-drag-region @dragover="preventDndAction" @drop="preventDndAction">
             <template #start>
                 <span id="title" class="no-select" data-tauri-drag-region>{{ configBasicInfo.headerText }}</span>
             </template>
             <template #center>
                 <IconField id="search-bar">
                     <InputIcon class="pi pi-search" />
-                    <InputText size="small" placeholder="Search for apps" autocomplete="off" />
+                    <InputText v-model="searchKeyword" size="small" placeholder="Search for apps" autocomplete="off" />
                 </IconField>
             </template>
             <template #end>
@@ -18,21 +18,21 @@
                 </ButtonGroup>
             </template>
         </Toolbar>
-        <component v-if="configLoaded" :is="currentViewComponent" />
+        <component v-if="configLoaded" :is="currentViewComponent" :search-keyword="searchKeyword" />
     </div>
     <Dialog class="width-dialog dialog-no-select" v-model:visible="settingsDialogVisible" modal header="Settings">
         <div class="flex flex-col gap-8">
             <div class="flex align-center">
-                <label class="flex-grow dialog-label no-select" for="dialog-header-text">Header text</label>
-                <InputText id="dialog-header-text" size="small" v-model="dialogSettings.headerText" placeholder="Required" autocomplete="off" />
+                <label class="dialog-label no-select" for="dialog-header-text">Header text</label>
+                <InputText id="dialog-header-text" class="flex-grow" size="small" v-model="dialogSettings.headerText" placeholder="Required" autocomplete="off" />
             </div>
             <div class="flex align-center">
-                <label class="flex-grow dialog-label no-select" for="dialog-author">Author</label>
-                <InputText id="dialog-author" size="small" v-model="dialogSettings.author" placeholder="Optional" autocomplete="off" />
+                <label class="dialog-label no-select" for="dialog-author">Author</label>
+                <InputText id="dialog-author" class="flex-grow" size="small" v-model="dialogSettings.author" placeholder="Optional" autocomplete="off" />
             </div>
             <div class="flex align-center">
-                <label class="flex-grow dialog-label no-select" for="dialog-toolbox-version">Toolbox version</label>
-                <InputText id="dialog-toolbox-version" size="small" v-model="dialogSettings.toolboxVersion" placeholder="major.minor, Optional" autocomplete="off" />
+                <label class="dialog-label no-select" for="dialog-toolbox-version">Toolbox version</label>
+                <InputText id="dialog-toolbox-version" class="flex-grow" size="small" v-model="dialogSettings.toolboxVersion" placeholder="major.minor, Optional" autocomplete="off" />
             </div>
         </div>
         <Divider align="center" type="solid">
@@ -40,12 +40,12 @@
         </Divider>
         <div class="flex flex-col gap-8">
             <div class="flex align-center">
-                <span class="flex-grow dialog-label no-select" for="dialog-theme-preset">Preset</span>
-                <Select id="dialog-theme-preset" size="small" v-model="dialogSettings.theme" :options="dialogThemePresets" option-label="name" option-value="theme" />
+                <span class="dialog-label no-select" for="dialog-theme-preset">Preset</span>
+                <Select id="dialog-theme-preset" class="flex-grow" size="small" v-model="dialogSettings.theme" :options="dialogThemePresets" option-label="name" option-value="theme" />
             </div>
             <div class="flex align-center">
-                <span class="flex-grow dialog-label no-select">Background type</span>
-                <Select id="dialog-theme-type" size="small" v-model="dialogSelectedThemeType" :options="dialogThemeTypes" option-label="name" option-value="type" />
+                <span class="dialog-label no-select">Background type</span>
+                <Select id="dialog-theme-type" class="flex-grow" size="small" v-model="dialogSelectedThemeType" :options="dialogThemeTypes" option-label="name" option-value="type" />
             </div>
             <div v-show="dialogSelectedThemeType === 'Solid'" class="flex align-center">
                 <span class="flex-grow dialog-label no-select">Color</span>
@@ -91,7 +91,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { moveWindow, Position } from '@tauri-apps/plugin-positioner';
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { ConfigBasicInfo, Theme, ThemeColor } from "./types";
-import { messageDialog, getThemeStyle, cloneTheme } from "./util";
+import { messageDialog, getThemeStyle, cloneTheme, preventDndAction } from "./util";
 import { useSingleMenu } from "./stores";
 import themePresets, { ThemePreset } from "./themes";
 import LauncherView from "./LauncherView.vue";
@@ -113,6 +113,8 @@ const themeStyle = computed(() => settingsDialogVisible.value ? getThemeStyle(di
 
 const currentView = ref<"launcher" | "appLibrary">("launcher");
 const currentViewComponent = computed(() => currentView.value === "launcher" ? LauncherView : AppLibraryView);
+const searchKeyword = ref("");
+
 const frameMenu = useTemplateRef("frame-menu");
 const toggleViewMenuItem = computed<MenuItem>(() => {
     return currentView.value === "launcher" ? {
@@ -187,8 +189,8 @@ const dialogSelectedThemeType = computed({
     }
 });
 const dialogSettingsValid = computed(() => {
-    return dialogSettings.value.headerText.trim() !== ""
-        && (dialogSettings.value.toolboxVersion === "" || /^\d{1,3}\.\d{1,3}$/.test(dialogSettings.value.toolboxVersion));
+    return dialogSettings.value.headerText.trim() !== "" &&
+        (dialogSettings.value.toolboxVersion === "" || /^\d{1,3}\.\d{1,3}$/.test(dialogSettings.value.toolboxVersion));
 });
 const dialogThemeColor1 = computed<ThemeColor>({
     get: () => dialogSettings.value.theme.type === "Solid" ? dialogSettings.value.theme.color : dialogSettings.value.theme.from,

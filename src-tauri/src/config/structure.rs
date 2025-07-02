@@ -1,6 +1,7 @@
 use std::fmt::Display;
 use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
+use super::super::commands::AppMetadataWithName;
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct ToolboxVersion(pub u32, pub u32);
@@ -33,6 +34,18 @@ pub struct AppMetadata {
     pub working_dir: PathBuf,
     pub desc: String,
     pub icon_url: String
+}
+
+impl From<&AppMetadataWithName> for AppMetadata {
+    fn from(metadata: &AppMetadataWithName) -> Self {
+        Self {
+            app_path: metadata.app_path.clone(),
+            launch_args: metadata.launch_args.clone(),
+            working_dir: metadata.working_dir.clone(),
+            desc: metadata.desc.clone(),
+            icon_url: metadata.icon_url.clone()
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]

@@ -1,6 +1,7 @@
 :root {
     --app-width: 1025px;
     --app-height: 600px;
+    --view-height: calc(var(--app-height) - 34px);
 }
 
 .flex { display: flex;}
@@ -47,6 +48,25 @@
 }
 
 .dialog-label {
+    width: 10rem;
     font-size: 1rem;
     font-weight: 500;
+}
+
+.toolbar {
+    padding: var(--p-list-padding);
+    padding-left: .6rem;
+}
+.toolbar-btn {
+    --p-button-sm-font-size: .73rem;
+    --p-button-sm-padding-y: .1rem;
+    --p-button-sm-padding-x: 0;
+    --p-button-sm-icon-only-width: 1.2rem;
+    --p-button-text-primary-color: white;
+    --p-button-text-primary-hover-background: rgb(255 255 255 / .3);
+    --p-button-text-primary-active-background: rgb(255 255 255 / .5);
+}
+.toolbar-title {
+    color: white;
+    font-size: .7rem;
 }

@@ -1,10 +1,10 @@
 <template>
     <main class="flex">
         <Splitter id="launcher-splitter" class="flex flex-basis-full">
-            <SplitterPanel class="flex" :size="20" :min-size="20">
+            <SplitterPanel class="flex launcher-splitter-panel" :size="20" :min-size="20">
                 <CategoryList v-model="selectedCategory" />
             </SplitterPanel>
-            <SplitterPanel :size="80" :min-size="70">
+            <SplitterPanel class="launcher-splitter-panel" :size="80" :min-size="70">
                 <CategoryAppList :category="selectedCategory" />
             </SplitterPanel>
         </Splitter>
@@ -15,7 +15,7 @@
 import { ref } from "vue";
 import CategoryList from "./components/CategoryList.vue";
 import CategoryAppList from "./components/CategoryAppList.vue";
-
+//const { searchKeyword } = defineProps<{ searchKeyword: string }>();
 const selectedCategory = ref<string | null>(null);
 </script>
 
@@ -28,6 +28,7 @@ const selectedCategory = ref<string | null>(null);
     --p-splitter-background: rgb(0 0 0 / 0);
     --p-splitter-gutter-background: rgb(0 0 0 / 0);
     border: none;
-    height: calc(var(--app-height) - 34px);
+    height: var(--view-height);
 }
+.launcher-splitter-panel { outline: none; }
 </style>

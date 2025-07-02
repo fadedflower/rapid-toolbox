@@ -123,9 +123,3 @@ pub fn encode_image_url_from_app_icon<P: AsRef<Path>>(path: P) -> Option<String>
     img.write_to(&mut Cursor::new(&mut encoded_img_buf), ImageFormat::Png).expect("Failed to encode image");    
     Some(encode_image_url_from_bytes(encoded_img_buf, "image/png".to_string()))
 }
-
-#[cfg(target_os = "macos")]
-pub fn encode_image_url_from_app_icon<P: AsRef<Path>>(path: P) -> Option<String> {
-    // TODO: implement icon extraction
-    None
-}

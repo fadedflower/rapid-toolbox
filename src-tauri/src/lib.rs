@@ -21,6 +21,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(prevent_default_plugin)
         .plugin(tauri_plugin_positioner::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(generate_handler![
             load_config,
             get_config_basic_info,
@@ -36,6 +37,12 @@ pub fn run() {
             add_app_to_category,
             add_app_list_to_category,
             update_apps_in_category,
+            add_app,
+            update_app,
+            remove_app,
+            load_icon_from_file,
+            load_icon_from_app,
+            get_relative_path,
             show_window
         ])
         .run(generate_context!())

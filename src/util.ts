@@ -76,3 +76,10 @@ export function cloneTheme(theme: Theme): Theme {
             return { type: "RadialGradient", from: { ...theme.from }, to: { ...theme.to } };
     }
 }
+
+export function preventDndAction(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = "none";
+    }
+}

@@ -69,6 +69,28 @@ impl Config {
         Ok(())
     }
 
+    pub fn rename_app(&mut self, app_name: &str, new_app_name: &str) -> Result<(), ConfigError> {
+        if !self.app_library.contains_key(app_name) {
+            return Err(ConfigError { err_type: ConfigErrorType::AppNotExist(app_name.to_string()), config_path: None });
+        }
+        let app_metadata = self.app_library.remove(app_name).expect("App should exist");
+        self.app_library.insert(new_app_name.to_string(), app_metadata);
+        for category in &mut self.categories {
+            if let Some(pos) = category.apps.iter().position(|category_app_name| category_app_name == app_name) {
+                category.apps[pos] = new_app_name.to_string();
+            }
+        }
+        Ok(())
+    }
+
+    pub fn update_app(&mut self, app_name: &str, metadata: AppMetadata) -> Result<(), ConfigError> {
+        if !self.app_library.contains_key(app_name) {
+            return Err(ConfigError { err_type: ConfigErrorType::AppNotExist(app_name.to_string()), config_path: None });
+        }
+        self.app_library.insert(app_name.to_string(), metadata);
+        Ok(())
+    }
+
     pub fn remove_app(&mut self, app_name: &str) -> Result<(), ConfigError> {
         if let None = self.app_library.remove(app_name) {
             return Err(ConfigError { err_type: ConfigErrorType::AppNotExist(app_name.to_string()), config_path: None });
