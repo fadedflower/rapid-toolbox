@@ -1,17 +1,28 @@
 <template>
     <div class="flex flex-col gap-2 height-full">
-        <div class="app-list" @click="deselectApp">
+        <div class="app-list" @click="deselectApp" @contextmenu="onContextMenu($event)">
             <div class="toolbar flex justify-space-between align-center">
                 <span class="toolbar-title no-select">Apps</span>
-                <Button
-                    class="toolbar-btn"
-                    icon="pi pi-plus-circle"
-                    variant="text"
-                    size="small"
-                    :disabled="category === null"
-                    v-tooltip.bottom="{ value: 'Add apps', class: 'btn-tooltip', showDelay: 700 }"
-                    @click="showAddDialog"
-                />
+                <div class="flex gap-4">
+                    <Button
+                        class="toolbar-btn"
+                        icon="pi pi-plus-circle"
+                        variant="text"
+                        size="small"
+                        :disabled="category === null"
+                        v-tooltip.bottom="{ value: 'Add apps', class: 'btn-tooltip', showDelay: 700 }"
+                        @click="showAddDialog"
+                    />
+                    <Button
+                        class="toolbar-btn"
+                        icon="pi pi-sort"
+                        variant="text"
+                        size="small"
+                        :disabled="category === null"
+                        v-tooltip.bottom="{ value: 'Sort apps', class: 'btn-tooltip', showDelay: 700 }"
+                        @click="sortApps"
+                    />
+                </div>
             </div>
             <ScrollPanel v-if="appsShown.length > 0" class="app-list-scroll-panel scroll-panel">
                 <div class="app-list-items flex flex-wrap">
@@ -142,6 +153,10 @@ const deselectApp = (event: MouseEvent) => {
     }
 };
 
+const sortApps = async () => {
+    await updateApps(apps.value.sort((a, b) => Intl.Collator(undefined, { numeric: true }).compare(a.name, b.name)).map(app => app.name));
+}
+
 const confirmRemoval = () => {
     confirm.require({
         message: `Do you want to remove app "${selectedContextMenuApp.value}"?`,
@@ -164,7 +179,6 @@ const confirmRemoval = () => {
                 selectedApp.value = null;
             }
             updateApps(apps.value.filter(app => app.name !== selectedContextMenuApp.value).map(app => app.name));
-            selectedContextMenuApp.value = null;
         }
     });
 };
@@ -172,11 +186,15 @@ const confirmRemoval = () => {
 const selectedContextMenuApp = ref<string | null>(null);
 const appMenu = useTemplateRef("app-menu");
 const appMenuItems = ref<MenuItem[]>([
-    { label: "Launch", icon: "pi pi-play", command: () => launchApp(selectedContextMenuApp.value!) },
-    { label: "Remove", icon: "pi pi-trash", command: confirmRemoval }
+    { label: "Launch", icon: "pi pi-play", visible: () => selectedContextMenuApp.value !== null, command: () => launchApp(selectedContextMenuApp.value!) },
+    { label: "Remove", icon: "pi pi-trash", visible: () => selectedContextMenuApp.value !== null, command: confirmRemoval },
+    { separator: true, visible: () => selectedContextMenuApp.value !== null },
+    { label: "Add app", icon: "pi pi-plus-circle", command: showAddDialog },
+    { label: "Sort apps", icon: "pi pi-sort", command: sortApps }
+
 ]);
-const onContextMenu = (event: PointerEvent, appName: string) => {
-    selectedContextMenuApp.value = appName;
+const onContextMenu = (event: MouseEvent, appName?: string) => {
+    selectedContextMenuApp.value = appName || null;
     singleMenu.open(menuId);
     appMenu.value?.show(event);
 };

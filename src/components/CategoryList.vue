@@ -1,15 +1,25 @@
 <template>
-    <div class="category-panel flex flex-col">
+    <div class="category-panel flex flex-col" @contextmenu="onContextMenu($event)">
         <div class="toolbar flex justify-space-between align-center">
             <span class="toolbar-title no-select">Category</span>
-            <Button
-                class="toolbar-btn"
-                icon="pi pi-plus-circle"
-                variant="text"
-                size="small"
-                v-tooltip.bottom="{ value: 'Add category', class: 'btn-tooltip', showDelay: 700 }"
-                @click="showAddDialog"
-            />
+            <div class="flex gap-4">
+                <Button
+                    class="toolbar-btn"
+                    icon="pi pi-plus-circle"
+                    variant="text"
+                    size="small"
+                    v-tooltip.bottom="{ value: 'Add category', class: 'btn-tooltip', showDelay: 700 }"
+                    @click="showAddDialog"
+                />
+                <Button
+                    class="toolbar-btn"
+                    icon="pi pi-sort"
+                    variant="text"
+                    size="small"
+                    v-tooltip.bottom="{ value: 'Sort categories', class: 'btn-tooltip', showDelay: 700 }"
+                    @click="sortCategories"
+                />
+            </div>
         </div>
         <ScrollPanel class="category-list-scroll-panel scroll-panel" v-if="categoriesShown.length > 0">
             <ul class="category-list flex flex-col">
@@ -108,6 +118,10 @@ const updateCategories = async (newCategories: string[]) => {
     }
 };
 
+const sortCategories = async () => {
+    await updateCategories(categories.value.sort((a, b) => Intl.Collator(undefined, { numeric: true }).compare(a, b)));
+}
+
 const confirmRemoval = () => {
     confirm.require({
         message: `Do you want to remove category "${selectedContextMenuCategory.value}"?`,
@@ -154,18 +168,23 @@ const categoryMoveDown = () => {
 const selectedContextMenuCategory = ref<string | null>(null);
 const categoryMenu = useTemplateRef("category-menu");
 const categoryMenuItems = ref<MenuItem[]>([
-    { label: "Rename", icon: "pi pi-pencil", command: showRenameDialog },
+    { label: "Rename", icon: "pi pi-pencil", visible: () => selectedContextMenuCategory.value !== null, command: showRenameDialog },
     { label: "Move up", icon: "pi pi-angle-up", command: categoryMoveUp,
-        visible: () => categories.value.indexOf(selectedContextMenuCategory.value!) !== 0
+        visible: () => selectedContextMenuCategory.value !== null && 
+            categories.value.indexOf(selectedContextMenuCategory.value!) !== 0
     },
     { label: "Move down", icon: "pi pi-angle-down", command: categoryMoveDown,
-        visible: () => categories.value.indexOf(selectedContextMenuCategory.value!) !== categories.value.length - 1
+        visible: () => selectedContextMenuCategory.value !== null && 
+            categories.value.indexOf(selectedContextMenuCategory.value!) !== categories.value.length - 1
     },
-    { separator: true },
-    { label: "Remove", icon: "pi pi-trash", command: confirmRemoval }
+    { label: "Remove", icon: "pi pi-trash", visible: () => selectedContextMenuCategory.value !== null, command: confirmRemoval },
+    { separator: true, visible: () => selectedContextMenuCategory.value !== null },
+    { label: "Add category", icon: "pi pi-plus-circle", command: showAddDialog },
+    { label: "Sort categories", icon: "pi pi-sort", command: sortCategories }
+
 ]);
-const onContextMenu = (event: PointerEvent, category: string) => {
-    selectedContextMenuCategory.value = category;
+const onContextMenu = (event: MouseEvent, category?: string) => {
+    selectedContextMenuCategory.value = category || null;
     singleMenu.open(menuId);
     categoryMenu.value?.show(event);
 };
