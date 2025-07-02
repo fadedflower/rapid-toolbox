@@ -120,11 +120,17 @@ const toggleViewMenuItem = computed<MenuItem>(() => {
     return currentView.value === "launcher" ? {
         label: "App library",
         icon: "pi pi-list",
-        command: () => currentView.value = "appLibrary"
+        command: () => {
+            searchKeyword.value = "";
+            currentView.value = "appLibrary";
+        }
     } : {
         label: "Launcher",
         icon: "pi pi-objects-column",
-        command: () => currentView.value = "launcher"
+        command: () => {
+            searchKeyword.value = "";
+            currentView.value = "launcher";
+        }
     };
 });
 const frameMenuItems = computed<MenuItem[]>(() => [
