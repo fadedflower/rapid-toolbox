@@ -11,11 +11,11 @@ import WindowFrame from "./WindowFrame.vue";
 import './styles/common.css';
 
 //prevent right-click context menu on the entire document except for input and textarea elements
-// document.addEventListener('contextmenu', event => {
-//     if(event.target instanceof HTMLElement && event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
-//         event.preventDefault();
-//     }
-// });
+document.addEventListener('contextmenu', event => {
+    if(event.target instanceof HTMLElement && event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+        event.preventDefault();
+    }
+});
 
 const AppPreset = definePreset(Aura, {
     semantic: {

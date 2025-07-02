@@ -81,6 +81,8 @@ const showAddDialog = () => {
 const addCategory = async () => {
     if (await invoke<boolean>("add_category", { category: dialogCategoryName.value.trim() })) {
         categories.value.push(dialogCategoryName.value.trim());
+        if (categories.value.length === 1)
+            selectedCategory.value = dialogCategoryName.value.trim();
         addDialogVisible.value = false;
     }
 };
