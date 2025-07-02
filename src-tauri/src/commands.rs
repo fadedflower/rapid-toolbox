@@ -251,10 +251,10 @@ pub fn load_icon_from_app(path: String) -> Option<String> {
 #[command]
 pub fn get_relative_path(path: String) -> Option<String> {
     let current_dir_path = current_dir().ok()?;
-    if Path::new(&path) == current_dir_path.parent()? {
+    if Path::new(&path) == current_dir_path {
         return Some(".".to_string());
     }
-    Path::new(&path).strip_prefix(current_dir_path.parent()?)
+    Path::new(&path).strip_prefix(current_dir_path)
         .and_then(|p| Ok(p.to_string_lossy().to_string())).ok()
 }
 
