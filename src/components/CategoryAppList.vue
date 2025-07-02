@@ -208,8 +208,10 @@ const onDragOver = (event: DragEvent, appName: string) => {
 };
 const onDrop = (event: DragEvent) => {
     event.preventDefault();
+    const draggedAppIndex = apps.value.findIndex(app => app.name === draggedApp.value);
+    const newDraggedAppIndex = appsOnDrag.value.findIndex(app => app.name === draggedApp.value);
     // Check if the order has changed
-    if (draggedApp.value && appsOnDrag.value[0].name !== apps.value[0].name) {
+    if (draggedApp.value && draggedAppIndex !== newDraggedAppIndex) {
         updateApps(appsOnDrag.value.map(app => app.name));
     }
 };

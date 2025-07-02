@@ -205,8 +205,10 @@ const onDragOver = (event: DragEvent, categoryName: string) => {
 };
 const onDrop = async (event: DragEvent, categoryName: string) => {
     event.preventDefault();
+    const draggedCategoryIndex = categories.value.indexOf(draggedCategory.value!);
+    const newDraggedCategoryIndex = categoriesOnDrag.value.indexOf(draggedCategory.value!);
     // Check if the order has changed
-    if (draggedCategory.value && categoriesOnDrag.value[0] !== categories.value[0]) {
+    if (draggedCategory.value && draggedCategoryIndex !== newDraggedCategoryIndex) {
         updateCategories(categoriesOnDrag.value);
     } else if (event.dataTransfer?.types.includes("dnditem")) {
         let dndItem: DnDItem = JSON.parse(event.dataTransfer.getData("dnditem"));
