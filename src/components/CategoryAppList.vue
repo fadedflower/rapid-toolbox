@@ -32,7 +32,7 @@
                 </div>
             </ScrollPanel>
             <div v-else class="flex justify-center align-center height-full">
-                <span class="empty-placeholder-text no-select">No apps available</span>
+                <span class="empty-placeholder-text no-select">{{ emptyMessage }}</span>
             </div>
         </div>
         <div class="app-desc-bar no-select">{{ selectedAppDesc === "" ? "< No description >" : selectedAppDesc }}</div>
@@ -81,8 +81,15 @@ const confirm = useConfirm();
 const singleMenu = useSingleMenu();
 const menuId = "app-menu";
 
-const { category } = defineProps<{ category: string | null }>();
+const { category, searchKeyword } = defineProps<{ category: string | null, searchKeyword: string }>();
 
+const appsShown = computed<AppMetadata[]>(() => {
+    const appList = draggedApp.value ? appsOnDrag.value : apps.value;
+    return searchKeyword.trim() === "" ? appList : appList.filter(app => app.name.toLowerCase().includes(searchKeyword.trim().toLowerCase()));
+});
+const emptyMessage = computed(() => {
+    return searchKeyword === "" ? "No apps available" : "No apps found";
+});
 const apps = ref<AppMetadata[]>([]);
 const selectedApp = ref<string | null>();
 const selectedAppDesc = computed(() => {
@@ -180,7 +187,6 @@ watch(singleMenu.getMenuId, newId => {
 });
 
 const appsOnDrag = ref<AppMetadata[]>([]);
-const appsShown = computed<AppMetadata[]>(() => draggedApp.value ? appsOnDrag.value : apps.value);
 const draggedApp = ref<string | null>(null);
 const onDragStart = (event: DragEvent, appName: string) => {
     let dndItem: DnDItem = { type: "app", name: appName };

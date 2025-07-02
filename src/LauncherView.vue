@@ -5,7 +5,7 @@
                 <CategoryList v-model="selectedCategory" />
             </SplitterPanel>
             <SplitterPanel class="launcher-splitter-panel" :size="80" :min-size="70">
-                <CategoryAppList :category="selectedCategory" />
+                <CategoryAppList :category="selectedCategory" :search-keyword="searchKeyword" />
             </SplitterPanel>
         </Splitter>
     </main>
@@ -15,7 +15,7 @@
 import { ref } from "vue";
 import CategoryList from "./components/CategoryList.vue";
 import CategoryAppList from "./components/CategoryAppList.vue";
-//const { searchKeyword } = defineProps<{ searchKeyword: string }>();
+const { searchKeyword } = defineProps<{ searchKeyword: string }>();
 const selectedCategory = ref<string | null>(null);
 </script>
 
