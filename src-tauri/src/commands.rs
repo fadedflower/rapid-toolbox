@@ -1,6 +1,5 @@
 use std::sync::Mutex;
-use std::path::PathBuf;
-use std::path::Path;
+use std::path::{Path, PathBuf, absolute};
 use std::process::Command;
 use std::env::current_dir;
 use serde::{Serialize, Deserialize};
@@ -91,24 +90,33 @@ pub fn launch_app(config_state: State<Mutex<Config>>, app_name: String) -> bool 
         if !metadata.app_path.is_file() || !metadata.working_dir.is_dir() {
             return false;
         }
+        let absolute_app_path = absolute(&metadata.app_path);
+        let absolute_working_dir = absolute(&metadata.working_dir);
+        if absolute_app_path.is_err() || absolute_working_dir.is_err() {
+            return false;
+        }
         #[cfg(windows)]
         {
             use std::os::windows::process::CommandExt;
             const DETACHED_PROCESS: u32 = 0x00000008;
-            Command::new("cmd")
-            .args(&["/c", &format!("{} {}", metadata.app_path.to_string_lossy(), metadata.launch_args)])
-            .current_dir(&metadata.working_dir)
-            .creation_flags(DETACHED_PROCESS) // prevent the console window from appearing
-            .spawn()
-            .is_ok()
-        }
-        #[cfg(unix)]
-        {
-            Command::new("sh")
-            .args(&["-c", &format!("{} {}", metadata.app_path.to_string_lossy(), metadata.launch_args)])
-            .current_dir(&metadata.working_dir)
-            .spawn()
-            .is_ok()
+            const CREATE_NEW_CONSOLE: u32 = 0x00000010;
+            let creation_flag: u32;
+            if let Some(ext) = metadata.app_path.extension() && (ext == "bat" || ext == "cmd") {
+                // for batch files, we should create a new console for it
+                creation_flag = CREATE_NEW_CONSOLE;
+            } else {
+                // for other executables, we want to prevent the console window from appearing if it is a GUI app
+                creation_flag = DETACHED_PROCESS;
+            }
+            let mut command = Command::new("cmd");
+            command.arg("/C")
+                .arg(absolute_app_path.unwrap())
+                .current_dir(absolute_working_dir.unwrap())
+                .creation_flags(creation_flag);
+            if !metadata.launch_args.is_empty() {
+                command.raw_arg(&metadata.launch_args);
+            }
+            command.spawn().is_ok()
         }
     } else {
         false
