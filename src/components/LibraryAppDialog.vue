@@ -69,11 +69,13 @@ import { invoke } from '@tauri-apps/api/core';
 import { path as pathApi } from '@tauri-apps/api';
 import { useMessageDialog } from '../util';
 import { AppMetadata } from '../types';
+import { useAppList } from "../stores";
 const { t } = useI18n();
 const messageDialog = useMessageDialog();
+const appListStore = useAppList();
 
 const visible = defineModel<boolean>("visible", { default: false });
-const { apps, editMode, editApp = null } = defineProps<{ apps: AppMetadata[], editMode: boolean, editApp?: AppMetadata | null }>();
+const { editMode, editApp = null } = defineProps<{ editMode: boolean, editApp?: AppMetadata | null }>();
 const emit = defineEmits<{ updateApp: [ newApp: AppMetadata ] }>();
 const dialogHeader = computed(() => editMode ? t('LibraryAppDialog.titleEditApp', [editApp?.name]) : t('LibraryAppDialog.titleAddApp'));
 const dialogSubmitBtnLabel = computed(() => editMode ? t('DialogCommon.btnSave') : t('DialogCommon.btnAdd'));
@@ -87,7 +89,7 @@ const dialogAppMetadata = ref<AppMetadata>({
 });
 const dialogAppMetadataValid = computed(() => {
     return dialogAppMetadata.value?.name.trim() !== "" &&
-        ((editMode && editApp?.name === dialogAppMetadata.value?.name.trim()) || apps.findIndex(app => app.name === dialogAppMetadata.value?.name) === -1) &&
+        ((editMode && editApp?.name === dialogAppMetadata.value?.name.trim()) || appListStore.apps.findIndex(app => app.name === dialogAppMetadata.value?.name) === -1) &&
         dialogAppMetadata.value?.appPath.trim() !== "" &&
         dialogAppMetadata.value?.workingDir.trim() !== "" &&
         dialogAppMetadata.value?.iconUrl.trim() !== "";

@@ -76,6 +76,7 @@
         "titleRemoveApp": "Remove app",
         "msgConfirmRemoval": "Do you want to remove app \"{0}\" from category \"{1}\"?",
         "menuLaunch": "Launch",
+        "menuEdit": "Edit",
         "menuRemove": "Remove",
         "selectPlaceholder": "Select apps",
         "selectEmptySelection": "No selected apps",

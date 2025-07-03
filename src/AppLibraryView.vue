@@ -3,7 +3,7 @@
         <DataTable
             id="app-library-table"
             class="width-full no-select"
-            :value="apps"
+            :value="appListStore.apps"
             size="small"
             data-key="name"
             sort-field="name"
@@ -80,12 +80,12 @@
             <Column :header="t('AppLibraryView.columnWorkingDir')" field="workingDir"></Column>
         </DataTable>
     </main>
-    <LibraryAppDialog v-model:visible="dialogVisible" :apps="apps" :edit-mode="dialogEditMode" :edit-app="selectedApp" @update-app="onUpdateApp" />
+    <LibraryAppDialog v-model:visible="dialogVisible" :edit-mode="dialogEditMode" :edit-app="selectedApp" @update-app="onUpdateApp" />
     <ContextMenu ref="app-menu" :model="appMenuItems" />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, useTemplateRef } from 'vue';
+import { ref, watch, computed, useTemplateRef } from 'vue';
 import { useI18n } from "vue-i18n";
 import { invoke } from '@tauri-apps/api/core';
 import { DataTableFilterMeta, DataTableFilterMetaData, DataTableRowContextMenuEvent } from 'primevue/datatable';
@@ -93,16 +93,15 @@ import { useConfirm } from 'primevue/useconfirm';
 import type { MenuItem } from "primevue/menuitem";
 import { FilterMatchMode } from '@primevue/core/api';
 import { AppMetadata } from './types';
-import { useSingleMenu } from "./stores";
+import { useSingleMenu, useAppList } from "./stores";
 import LibraryAppDialog from './components/LibraryAppDialog.vue';
 const { t } = useI18n();
 const confirm = useConfirm();
 const singleMenu = useSingleMenu();
 const menuId = "library-app-menu";
+const appListStore = useAppList();
 
 const { searchKeyword } = defineProps<{ searchKeyword: string }>();
-const apps = ref<AppMetadata[]>([]);
-const sortedApps = computed(() => apps.value.sort((a, b) => Intl.Collator(undefined, { numeric: true }).compare(a.name, b.name)));
 const selectedApp = ref<AppMetadata | null>(null);
 const filters = ref<DataTableFilterMeta>({
     global: { value: searchKeyword, matchMode: FilterMatchMode.CONTAINS }
@@ -133,7 +132,7 @@ const showEditAppDialog = () => {
 };
 
 const onUpdateApp = async (newApp: AppMetadata) => {
-    await reloadAppList();
+    await appListStore.reloadApps();
     selectedApp.value = newApp;
 };
 const confirmRemoval = () => {
@@ -154,15 +153,11 @@ const confirmRemoval = () => {
         },
         async accept() {
             if (await invoke("remove_app", { appName: selectedApp.value?.name })) {
-                apps.value = apps.value.filter(app => app.name !== selectedApp.value?.name);
+                appListStore.apps = appListStore.apps.filter(app => app.name !== selectedApp.value?.name);
                 selectedApp.value = null;
             }
         }
     });
-};
-
-const reloadAppList = async () => {
-    apps.value = await invoke('get_all_app_list');
 };
 
 const selectedContextMenuApp = ref<AppMetadata | null>(null);
@@ -189,11 +184,11 @@ const editOnKeyDown = () => {
 };
 const navigateOnKeyDown = (event: KeyboardEvent) => {
     if (selectedApp.value !== null) {
-        let index = sortedApps.value.indexOf(selectedApp.value);
+        let index = appListStore.apps.indexOf(selectedApp.value);
         if (event.key === "ArrowUp" && index > 0) {
-            selectedApp.value = sortedApps.value[index - 1];
-        } else if (event.key === "ArrowDown" && index < sortedApps.value.length - 1) {
-            selectedApp.value = sortedApps.value[index + 1];
+            selectedApp.value = appListStore.apps[index - 1];
+        } else if (event.key === "ArrowDown" && index < appListStore.apps.length - 1) {
+            selectedApp.value = appListStore.apps[index + 1];
         }
     }
 };
@@ -202,10 +197,6 @@ watch(singleMenu.getMenuId, newId => {
     if (newId !== menuId) {
         appMenu.value?.hide();
     }
-});
-
-onMounted(async () => {
-    await reloadAppList();
 });
 </script>
 

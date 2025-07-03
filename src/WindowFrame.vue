@@ -41,7 +41,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { moveWindow, Position } from '@tauri-apps/plugin-positioner';
 import { ConfigBasicInfo, Theme } from "./types";
 import { useMessageDialog, getThemeStyle, preventDndAction } from "./util";
-import { useSingleMenu } from "./stores";
+import { useSingleMenu, useAppList } from "./stores";
 import themePresets from "./themes";
 import LauncherView from "./LauncherView.vue";
 import AppLibraryView from "./AppLibraryView.vue";
@@ -52,6 +52,7 @@ const appWindow = getCurrentWindow();
 const messageDialog = useMessageDialog();
 const singleMenu = useSingleMenu();
 const menuId = "frame-menu";
+const appListStore = useAppList();
 
 const configLoaded = ref(false);
 const configBasicInfo = ref<ConfigBasicInfo>({
@@ -111,9 +112,10 @@ onMounted(async () => {
     if (!await invoke<boolean>("load_config")) {
         messageDialog(t("WindowFrame.titleConfig"), t("WindowFrame.msgFailedToLoadConfig"), "error", () => appWindow.close());
     } else {
-        configLoaded.value = true;
         configBasicInfo.value = await invoke<ConfigBasicInfo>("get_config_basic_info");
         locale.value = configBasicInfo.value.lang;
+        appListStore.reloadApps();
+        configLoaded.value = true;
     }
 });
 </script>

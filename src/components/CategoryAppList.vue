@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col gap-2 height-full">
         <div class="app-list" @click="deselectApp" @contextmenu="onContextMenu($event)">
-            <div class="toolbar flex justify-space-between align-center">
+            <div class="app-toolbar toolbar flex justify-space-between align-center">
                 <span class="toolbar-title no-select">{{ t("CategoryAppList.title") }}</span>
                 <div class="flex gap-4">
                     <Button
@@ -78,6 +78,7 @@
         </template>
     </Dialog>
     <ContextMenu ref="app-menu" :model="appMenuItems" />
+    <LibraryAppDialog v-model:visible="editAppDialogVisible" edit-mode :edit-app="selectedContextMenuAppMetadata" @update-app="editAppUpdate" />
 </template>
 
 <script setup lang="ts">
@@ -90,6 +91,7 @@ import { AppMetadata, DnDItem, DropEffect } from "../types";
 import { useMessageDialog } from "../util";
 import { useSingleMenu } from "../stores";
 import GridAppItem from "./GridAppItem.vue";
+import LibraryAppDialog from "./LibraryAppDialog.vue";
 const { t } = useI18n();
 const confirm = useConfirm();
 const messageDialog = useMessageDialog();
@@ -133,6 +135,7 @@ const updateApps = async (newApps: string[]) => {
 };
 
 const addDialogVisible = ref(false);
+const editAppDialogVisible = ref(false);
 const dialogApps = ref<AppMetadata[]>([]);
 const dialogSelectedApps = ref<AppMetadata[]>([]);
 const showAddDialog = async () => {
@@ -147,6 +150,12 @@ const addApps = async () => {
     if (await invoke<boolean>("add_app_list_to_category", { apps: dialogSelectedApps.value.map(app => app.name), category })) {
         await reloadApps();
         addDialogVisible.value = false;
+    }
+};
+const editAppUpdate = async (newApp: AppMetadata) => {
+    if (selectedApp.value === selectedContextMenuApp.value) {
+        await reloadApps();
+        selectedApp.value = newApp.name;
     }
 };
 
@@ -187,9 +196,13 @@ const confirmRemoval = () => {
 };
 
 const selectedContextMenuApp = ref<string | null>(null);
+const selectedContextMenuAppMetadata = computed(() => {
+    return selectedContextMenuApp.value ? apps.value.find(app => app.name === selectedContextMenuApp.value) : null;
+});
 const appMenu = useTemplateRef("app-menu");
 const appMenuItems = computed<MenuItem[]>(() => [
     { label: t("CategoryAppList.menuLaunch"), icon: "pi pi-play", visible: () => selectedContextMenuApp.value !== null, command: () => launchApp(selectedContextMenuApp.value!) },
+    { label: t("CategoryAppList.menuEdit"), icon: "pi pi-pencil", visible: () => selectedContextMenuApp.value !== null, command: () => editAppDialogVisible.value = true },
     { label: t("CategoryAppList.menuRemove"), icon: "pi pi-trash", visible: () => selectedContextMenuApp.value !== null, command: confirmRemoval },
     { separator: true, visible: () => selectedContextMenuApp.value !== null },
     { label: t("CategoryAppList.addApps"), icon: "pi pi-plus-circle", command: showAddDialog },
