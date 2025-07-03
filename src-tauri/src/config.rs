@@ -10,6 +10,7 @@ use error::{ConfigError, ConfigErrorType};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct Config {
+    pub lang: String,
     pub header_text: String,
     pub author: Option<String>,
     pub toolbox_version: Option<ToolboxVersion>,
@@ -21,6 +22,7 @@ pub struct Config {
 impl Config {
     pub fn new() -> Self {
         Self {
+            lang: String::from("en"),
             header_text: String::from("Rapid Toolbox"),
             author: None,
             toolbox_version: None,

@@ -1,14 +1,14 @@
 <template>
     <div class="category-panel flex flex-col" @contextmenu="onContextMenu($event)">
         <div class="toolbar flex justify-space-between align-center">
-            <span class="toolbar-title no-select">Category</span>
+            <span class="toolbar-title no-select">{{ t('CategoryList.title') }}</span>
             <div class="flex gap-4">
                 <Button
                     class="toolbar-btn"
                     icon="pi pi-plus-circle"
                     variant="text"
                     size="small"
-                    v-tooltip.bottom="{ value: 'Add category', class: 'btn-tooltip', showDelay: 700 }"
+                    v-tooltip.bottom="{ value: t('CategoryList.addCategory'), class: 'btn-tooltip', showDelay: 700 }"
                     @click="showAddDialog"
                 />
                 <Button
@@ -16,7 +16,7 @@
                     icon="pi pi-sort"
                     variant="text"
                     size="small"
-                    v-tooltip.bottom="{ value: 'Sort categories', class: 'btn-tooltip', showDelay: 700 }"
+                    v-tooltip.bottom="{ value: t('CategoryList.sortCategories'), class: 'btn-tooltip', showDelay: 700 }"
                     @click="sortCategories"
                 />
             </div>
@@ -40,21 +40,21 @@
             </ul>
         </ScrollPanel>
         <div class="flex justify-center align-center height-full" v-else>
-            <span class="empty-placeholder-text no-select">No categories available</span>
+            <span class="empty-placeholder-text no-select">{{ t('CategoryList.emptyPlaceholder') }}</span>
         </div>
     </div>
-    <Dialog class="width-dialog dialog-no-select" v-model:visible="addDialogVisible" modal header="Add category">
-        <InputText class="width-full" size="small" v-model="dialogCategoryName" placeholder="Name" autofocus autocomplete="off" />
+    <Dialog class="width-dialog dialog-no-select" v-model:visible="addDialogVisible" modal :header="t('CategoryList.addCategory')">
+        <InputText class="width-full" size="small" v-model="dialogCategoryName" :placeholder="t('CategoryList.dialogPlaceholder')" autofocus autocomplete="off" />
         <template #footer>
-            <Button label="Cancel"  size="small" severity="secondary" @click="addDialogVisible = false" />
-            <Button label="Add"  size="small" :disabled="dialogCategoryName.trim() === '' || categories.includes(dialogCategoryName)" @click="addCategory" />
+            <Button :label="t('DialogCommon.btnCancel')" size="small" severity="secondary" @click="addDialogVisible = false" />
+            <Button :label="t('DialogCommon.btnAdd')" size="small" :disabled="dialogCategoryName.trim() === '' || categories.includes(dialogCategoryName)" @click="addCategory" />
         </template>
     </Dialog>
-    <Dialog class="width-dialog dialog-no-select" v-model:visible="renameDialogVisible" modal header="Rename category">
-        <InputText class="width-full" size="small" v-model="dialogCategoryName" placeholder="Name" autofocus autocomplete="off" />
+    <Dialog class="width-dialog dialog-no-select" v-model:visible="renameDialogVisible" modal :header="t('CategoryList.renameCategory')">
+        <InputText class="width-full" size="small" v-model="dialogCategoryName" :placeholder="t('CategoryList.dialogPlaceholder')" autofocus autocomplete="off" />
         <template #footer>
-            <Button label="Cancel" size="small" severity="secondary" @click="renameDialogVisible = false" />
-            <Button label="Rename" size="small" :disabled="dialogCategoryName.trim() === '' || categories.includes(dialogCategoryName)" @click="renameCategory" />
+            <Button :label="t('DialogCommon.btnCancel')" size="small" severity="secondary" @click="renameDialogVisible = false" />
+            <Button :label="t('DialogCommon.btnRename')" size="small" :disabled="dialogCategoryName.trim() === '' || categories.includes(dialogCategoryName)" @click="renameCategory" />
         </template>
     </Dialog>
     <ContextMenu ref="category-menu" :model="categoryMenuItems" />
@@ -62,14 +62,17 @@
 
 <script setup lang="ts">
 import { ref, useTemplateRef, computed, onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useConfirm } from "primevue/useconfirm";
 import { invoke } from "@tauri-apps/api/core";
 import type { MenuItem } from "primevue/menuitem";
 import { DnDItem, DropEffect } from "../types";
-import { messageDialog } from "../util";
+import { useMessageDialog } from "../util";
 import { useSingleMenu } from "../stores";
 import CategoryListItem from "./CategoryListItem.vue";
+const { t } = useI18n();
 const confirm = useConfirm();
+const messageDialog = useMessageDialog();
 const singleMenu = useSingleMenu();
 const menuId = "category-menu";
 
@@ -124,25 +127,24 @@ const sortCategories = async () => {
 
 const confirmRemoval = () => {
     confirm.require({
-        message: `Do you want to remove category "${selectedContextMenuCategory.value}"?`,
-        header: "Remove category",
+        message: t("CategoryList.msgConfirmRemoval", [selectedContextMenuCategory.value]),
+        header: t("CategoryList.titleRemoveCategory"),
         icon: "pi pi-exclamation-circle",
-        rejectLabel: 'Cancel',
+        rejectLabel: t("DialogCommon.btnCancel"),
         rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
+            severity: "secondary",
             outlined: true,
-            size: 'small'
+            size: "small"
         },
+        acceptLabel: t("DialogCommon.btnRemove"),
         acceptProps: {
-            label: 'Remove',
-            severity: 'danger',
-            size: 'small'
+            severity: "danger",
+            size: "small"
         },
         accept() {
             if (selectedCategory.value === selectedContextMenuCategory.value) {
                 if (categories.value.length === 1)
-                    selectedCategory.value = "";
+                    selectedCategory.value = null;
                 else
                     selectedCategory.value = categories.value[0] === selectedCategory.value ? categories.value[1] : categories.value[0];
             }
@@ -167,20 +169,20 @@ const categoryMoveDown = () => {
 
 const selectedContextMenuCategory = ref<string | null>(null);
 const categoryMenu = useTemplateRef("category-menu");
-const categoryMenuItems = ref<MenuItem[]>([
-    { label: "Rename", icon: "pi pi-pencil", visible: () => selectedContextMenuCategory.value !== null, command: showRenameDialog },
-    { label: "Move up", icon: "pi pi-angle-up", command: categoryMoveUp,
+const categoryMenuItems = computed<MenuItem[]>(() => [
+    { label: t("CategoryList.menuRename"), icon: "pi pi-pencil", visible: () => selectedContextMenuCategory.value !== null, command: showRenameDialog },
+    { label: t("CategoryList.menuRemove"), icon: "pi pi-trash", visible: () => selectedContextMenuCategory.value !== null, command: confirmRemoval },
+    { label: t("CategoryList.menuMoveUp"), icon: "pi pi-angle-up", command: categoryMoveUp,
         visible: () => selectedContextMenuCategory.value !== null && 
             categories.value.indexOf(selectedContextMenuCategory.value!) !== 0
     },
-    { label: "Move down", icon: "pi pi-angle-down", command: categoryMoveDown,
+    { label: t("CategoryList.menuMoveDown"), icon: "pi pi-angle-down", command: categoryMoveDown,
         visible: () => selectedContextMenuCategory.value !== null && 
             categories.value.indexOf(selectedContextMenuCategory.value!) !== categories.value.length - 1
     },
-    { label: "Remove", icon: "pi pi-trash", visible: () => selectedContextMenuCategory.value !== null, command: confirmRemoval },
     { separator: true, visible: () => selectedContextMenuCategory.value !== null },
-    { label: "Add category", icon: "pi pi-plus-circle", command: showAddDialog },
-    { label: "Sort categories", icon: "pi pi-sort", command: sortCategories }
+    { label: t("CategoryList.addCategory"), icon: "pi pi-plus-circle", command: showAddDialog },
+    { label: t("CategoryList.sortCategories"), icon: "pi pi-sort", command: sortCategories }
 
 ]);
 const onContextMenu = (event: MouseEvent, category?: string) => {
@@ -233,7 +235,7 @@ const onDrop = async (event: DragEvent, categoryName: string) => {
         let dndItem: DnDItem = JSON.parse(event.dataTransfer.getData("dnditem"));
         if (dndItem.type === "app" && selectedCategory.value !== categoryName) {
             if (!await invoke<boolean>("add_app_to_category", { app: dndItem.name, category: categoryName })) {
-                messageDialog(confirm, "Add app", `The app "${dndItem.name}" already exists in category "${categoryName}".`, "warning");
+                messageDialog(t("CategoryList.titleAddApp"), t("CategoryList.msgAppExists", [dndItem.name, categoryName]), "warning");
             }
         }
     }

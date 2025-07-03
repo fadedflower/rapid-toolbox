@@ -2,7 +2,7 @@
     <div class="flex flex-col gap-2 height-full">
         <div class="app-list" @click="deselectApp" @contextmenu="onContextMenu($event)">
             <div class="toolbar flex justify-space-between align-center">
-                <span class="toolbar-title no-select">Apps</span>
+                <span class="toolbar-title no-select">{{ t("CategoryAppList.title") }}</span>
                 <div class="flex gap-4">
                     <Button
                         class="toolbar-btn"
@@ -10,7 +10,7 @@
                         variant="text"
                         size="small"
                         :disabled="category === null"
-                        v-tooltip.bottom="{ value: 'Add apps', class: 'btn-tooltip', showDelay: 700 }"
+                        v-tooltip.bottom="{ value: t('CategoryAppList.addApps'), class: 'btn-tooltip', showDelay: 700 }"
                         @click="showAddDialog"
                     />
                     <Button
@@ -19,7 +19,7 @@
                         variant="text"
                         size="small"
                         :disabled="category === null"
-                        v-tooltip.bottom="{ value: 'Sort apps', class: 'btn-tooltip', showDelay: 700 }"
+                        v-tooltip.bottom="{ value: t('CategoryAppList.sortApps'), class: 'btn-tooltip', showDelay: 700 }"
                         @click="sortApps"
                     />
                 </div>
@@ -46,9 +46,9 @@
                 <span class="empty-placeholder-text no-select">{{ emptyMessage }}</span>
             </div>
         </div>
-        <div class="app-desc-bar no-select">{{ selectedAppDesc === "" ? "< No description >" : selectedAppDesc }}</div>
+        <div class="app-desc-bar no-select">{{ selectedAppDesc === "" ? t("CategoryAppList.noDescPlaceholder") : selectedAppDesc }}</div>
     </div>
-    <Dialog class="width-dialog dialog-no-select" v-model:visible="addDialogVisible" modal header="Add apps">
+    <Dialog class="width-dialog dialog-no-select" v-model:visible="addDialogVisible" modal :header="t('CategoryAppList.addApps')">
         <MultiSelect
             class="width-full"
             size="small"
@@ -59,10 +59,11 @@
             optionLabel="name"
             filter
             showClear
-            placeholder="Select apps"
-            empty-selection-message = "No selected app"
-            empty-message="No available apps"
-            selected-items-label="{0} apps selected"
+            :placeholder="t('CategoryAppList.selectPlaceholder')"
+            :empty-selection-message="t('CategoryAppList.selectEmptySelection')"
+            :empty-message="t('CategoryAppList.selectEmpty')"
+            :selected-items-label="t('CategoryAppList.selectMultipleSelection', ['{0}'])"
+            :empty-filter-message="t('CategoryAppList.selectEmptyFilter')"
         >
             <template #option="slotProps">
                 <div class="flex align-center">
@@ -72,8 +73,8 @@
             </template>
         </MultiSelect>
         <template #footer>
-            <Button label="Cancel" size="small" severity="secondary" @click="addDialogVisible = false" />
-            <Button label="Add" size="small" @click="addApps" />
+            <Button :label="t('DialogCommon.btnCancel')" size="small" severity="secondary" @click="addDialogVisible = false" />
+            <Button :label="t('DialogCommon.btnAdd')" size="small" @click="addApps" />
         </template>
     </Dialog>
     <ContextMenu ref="app-menu" :model="appMenuItems" />
@@ -81,14 +82,17 @@
 
 <script setup lang="ts">
 import { ref, computed, useTemplateRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useConfirm } from "primevue/useconfirm";
 import { invoke } from "@tauri-apps/api/core";
 import type { MenuItem } from "primevue/menuitem";
 import { AppMetadata, DnDItem, DropEffect } from "../types";
-import { messageDialog } from "../util";
+import { useMessageDialog } from "../util";
 import { useSingleMenu } from "../stores";
 import GridAppItem from "./GridAppItem.vue";
+const { t } = useI18n();
 const confirm = useConfirm();
+const messageDialog = useMessageDialog();
 const singleMenu = useSingleMenu();
 const menuId = "app-menu";
 
@@ -99,12 +103,12 @@ const appsShown = computed<AppMetadata[]>(() => {
     return searchKeyword.trim() === "" ? appList : appList.filter(app => app.name.toLowerCase().includes(searchKeyword.trim().toLowerCase()));
 });
 const emptyMessage = computed(() => {
-    return searchKeyword === "" ? "No apps available" : "No apps found";
+    return searchKeyword === "" ? t("CategoryAppList.emptyPlaceholder") : t("CategoryAppList.notFoundPlaceholder");
 });
 const apps = ref<AppMetadata[]>([]);
 const selectedApp = ref<string | null>();
 const selectedAppDesc = computed(() => {
-    return selectedApp.value ? apps.value.find(a => a.name === selectedApp.value)!.desc : "Click on an app to show its description. Double-click to launch it.";
+    return selectedApp.value ? apps.value.find(a => a.name === selectedApp.value)!.desc : t("CategoryAppList.selectAppInstruction");
 });
 const reloadApps = async () => {
     apps.value = [];
@@ -119,7 +123,7 @@ watch(() => category, reloadApps);
 
 const launchApp = async (appName: string) => {
     if (!await invoke<boolean>("launch_app", { appName })) {
-        messageDialog(confirm, "Launch app", `Failed to launch app "${appName}". Please ensure the app config is correct.`, "error");
+        messageDialog(t("CategoryAppList.titleLaunchApp"), t("CategoryAppList.msgFailedToLaunchApp", [appName]), "error");
     }
 };
 const updateApps = async (newApps: string[]) => {
@@ -159,20 +163,19 @@ const sortApps = async () => {
 
 const confirmRemoval = () => {
     confirm.require({
-        message: `Do you want to remove app "${selectedContextMenuApp.value}"?`,
-        header: "Remove app",
+        message: t("CategoryAppList.msgConfirmRemoval", [selectedContextMenuApp.value, category]),
+        header: t("CategoryAppList.titleRemoveApp"),
         icon: "pi pi-exclamation-circle",
-        rejectLabel: 'Cancel',
+        rejectLabel: t("DialogCommon.btnCancel"),
         rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
+            severity: "secondary",
             outlined: true,
-            size: 'small'
+            size: "small"
         },
+        acceptLabel: t("DialogCommon.btnRemove"),
         acceptProps: {
-            label: 'Remove',
-            severity: 'danger',
-            size: 'small'
+            severity: "danger",
+            size: "small"
         },
         accept() {
             if (selectedApp.value === selectedContextMenuApp.value) {
@@ -185,12 +188,12 @@ const confirmRemoval = () => {
 
 const selectedContextMenuApp = ref<string | null>(null);
 const appMenu = useTemplateRef("app-menu");
-const appMenuItems = ref<MenuItem[]>([
-    { label: "Launch", icon: "pi pi-play", visible: () => selectedContextMenuApp.value !== null, command: () => launchApp(selectedContextMenuApp.value!) },
-    { label: "Remove", icon: "pi pi-trash", visible: () => selectedContextMenuApp.value !== null, command: confirmRemoval },
+const appMenuItems = computed<MenuItem[]>(() => [
+    { label: t("CategoryAppList.menuLaunch"), icon: "pi pi-play", visible: () => selectedContextMenuApp.value !== null, command: () => launchApp(selectedContextMenuApp.value!) },
+    { label: t("CategoryAppList.menuRemove"), icon: "pi pi-trash", visible: () => selectedContextMenuApp.value !== null, command: confirmRemoval },
     { separator: true, visible: () => selectedContextMenuApp.value !== null },
-    { label: "Add app", icon: "pi pi-plus-circle", command: showAddDialog },
-    { label: "Sort apps", icon: "pi pi-sort", command: sortApps }
+    { label: t("CategoryAppList.addApps"), icon: "pi pi-plus-circle", command: showAddDialog },
+    { label: t("CategoryAppList.sortApps"), icon: "pi pi-sort", command: sortApps }
 
 ]);
 const onContextMenu = (event: MouseEvent, appName?: string) => {

@@ -36,6 +36,7 @@ impl From<&AppMetadata> for AppMetadataWithName {
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConfigBasicInfo {
+    pub lang: String,
     pub header_text: String,
     pub author: Option<String>,
     pub toolbox_version: Option<ToolboxVersion>,
@@ -45,6 +46,7 @@ pub struct ConfigBasicInfo {
 impl From<&Config> for ConfigBasicInfo {
     fn from(config: &Config) -> Self {
         Self {
+            lang: config.lang.clone(),
             header_text: config.header_text.clone(),
             author: config.author.clone(),
             toolbox_version: config.toolbox_version.clone(),
@@ -76,6 +78,7 @@ pub fn get_config_basic_info(config_state: State<Mutex<Config>>) -> ConfigBasicI
 #[command]
 pub fn set_config_basic_info(config_state: State<Mutex<Config>>, basic_info: ConfigBasicInfo) -> bool {
     let mut config = config_state.lock().unwrap();
+    config.lang = basic_info.lang;
     config.header_text = basic_info.header_text;
     config.author = basic_info.author;
     config.toolbox_version = basic_info.toolbox_version;

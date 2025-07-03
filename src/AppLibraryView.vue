@@ -29,7 +29,7 @@
         >
             <template #header>
                 <div class="table-header flex justify-space-between align-center" @click="deselectApp">
-                    <span class="table-header-title no-select">App library</span>
+                    <span class="table-header-title no-select">{{ t('AppLibraryView.title') }}</span>
                     <div class="flex gap-4">
                         <Button
                             class="table-header-btn"
@@ -37,7 +37,7 @@
                             size="small"
                             severity="primary"
                             text
-                            v-tooltip.bottom="{ value: 'Add app', class: 'btn-tooltip', showDelay: 700 }"
+                            v-tooltip.bottom="{ value: t('AppLibraryView.addApp'), class: 'btn-tooltip', showDelay: 700 }"
                             @click="showAddAppDialog"
                         />
                         <Button
@@ -47,7 +47,7 @@
                             size="small"
                             severity="primary"
                             text
-                            v-tooltip.bottom="{ value: 'Edit app', class: 'btn-tooltip', showDelay: 700 }"
+                            v-tooltip.bottom="{ value: t('AppLibraryView.editApp'), class: 'btn-tooltip', showDelay: 700 }"
                             @click="showEditAppDialog"
                         />
                         <Button
@@ -57,7 +57,7 @@
                             size="small"
                             severity="primary"
                             text
-                            v-tooltip.bottom="{ value: 'Remove app', class: 'btn-tooltip', showDelay: 700 }"
+                            v-tooltip.bottom="{ value: t('AppLibraryView.removeApp'), class: 'btn-tooltip', showDelay: 700 }"
                             @click="confirmRemoval"
                         />
                     </div>
@@ -66,18 +66,18 @@
             <template #empty>
                 <span>{{ emptyMessage }}</span>
             </template>
-            <Column header="Icon" :pt="{ columnHeaderContent: 'justify-center' }">
+            <Column :header="t('AppLibraryView.columnIcon')" :pt="{ columnHeaderContent: 'justify-center' }">
                 <template #body="slotProps">
                     <div class="flex justify-center align-center">
                         <img :src="slotProps.data.iconUrl" width="24" height="24" />
                     </div>
                 </template>
             </Column>
-            <Column header="Name" field="name"></Column>
-            <Column header="Description" field="desc"></Column>
-            <Column header="App path" field="appPath"></Column>
-            <Column header="Launch args" field="launchArgs"></Column>
-            <Column header="Working directory" field="workingDir"></Column>
+            <Column :header="t('AppLibraryView.columnName')" field="name"></Column>
+            <Column :header="t('AppLibraryView.columnDesc')" field="desc"></Column>
+            <Column :header="t('AppLibraryView.columnAppPath')" field="appPath"></Column>
+            <Column :header="t('AppLibraryView.columnLaunchArgs')" field="launchArgs"></Column>
+            <Column :header="t('AppLibraryView.columnWorkingDir')" field="workingDir"></Column>
         </DataTable>
     </main>
     <LibraryAppDialog v-model:visible="dialogVisible" :apps="apps" :edit-mode="dialogEditMode" :edit-app="selectedApp" @update-app="onUpdateApp" />
@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, useTemplateRef } from 'vue';
+import { useI18n } from "vue-i18n";
 import { invoke } from '@tauri-apps/api/core';
 import { DataTableFilterMeta, DataTableFilterMetaData, DataTableRowContextMenuEvent } from 'primevue/datatable';
 import { useConfirm } from 'primevue/useconfirm';
@@ -94,6 +95,7 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { AppMetadata } from './types';
 import { useSingleMenu } from "./stores";
 import LibraryAppDialog from './components/LibraryAppDialog.vue';
+const { t } = useI18n();
 const confirm = useConfirm();
 const singleMenu = useSingleMenu();
 const menuId = "library-app-menu";
@@ -109,12 +111,12 @@ watch(() => searchKeyword, newKeyword => {
     (filters.value["global"] as DataTableFilterMetaData).value = newKeyword;
 });
 const emptyMessage = computed(() => {
-    return searchKeyword === "" ? "No apps available. Add apps by clicking on the plus button." : "No apps found.";
+    return searchKeyword === "" ? t("AppLibraryView.emptyPlaceholder") : t("AppLibraryView.notFoundPlaceholder");
 });
 
 const deselectApp = (event: MouseEvent) => {
     if (event.target instanceof HTMLElement && 
-        (event.target.classList.contains('table-header') || event.target.classList.contains('table-header-title'))) {
+        (event.target.classList.contains("table-header") || event.target.classList.contains("table-header-title"))) {
         selectedApp.value = null;
     }
 };
@@ -136,23 +138,22 @@ const onUpdateApp = async (newApp: AppMetadata) => {
 };
 const confirmRemoval = () => {
     confirm.require({
-        message: `Do you want to remove app "${selectedApp.value?.name}"?`,
-        header: "Remove app",
+        message: t("AppLibraryView.msgConfirmRemoval", [selectedApp.value?.name]),
+        header: t("AppLibraryView.titleRemoveApp"),
         icon: "pi pi-exclamation-circle",
-        rejectLabel: 'Cancel',
+        rejectLabel: t("DialogCommon.btnCancel"),
         rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
+            severity: "secondary",
             outlined: true,
-            size: 'small'
+            size: "small"
         },
+        acceptLabel: t("DialogCommon.btnRemove"),
         acceptProps: {
-            label: 'Remove',
-            severity: 'danger',
-            size: 'small'
+            severity: "danger",
+            size: "small"
         },
         async accept() {
-            if (await invoke('remove_app', { appName: selectedApp.value?.name })) {
+            if (await invoke("remove_app", { appName: selectedApp.value?.name })) {
                 apps.value = apps.value.filter(app => app.name !== selectedApp.value?.name);
                 selectedApp.value = null;
             }
@@ -167,8 +168,8 @@ const reloadAppList = async () => {
 const selectedContextMenuApp = ref<AppMetadata | null>(null);
 const appMenu = useTemplateRef("app-menu");
 const appMenuItems = ref<MenuItem[]>([
-    { label: "Edit", icon: "pi pi-pencil", command: showEditAppDialog },
-    { label: "Remove", icon: "pi pi-trash", command: confirmRemoval }
+    { label: t("AppLibraryView.menuEdit"), icon: "pi pi-pencil", command: showEditAppDialog },
+    { label: t("AppLibraryView.menuRemove"), icon: "pi pi-trash", command: confirmRemoval }
 ]);
 const onContextMenu = (event: DataTableRowContextMenuEvent) => {
     selectedApp.value = selectedContextMenuApp.value;

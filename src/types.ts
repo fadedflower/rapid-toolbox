@@ -45,6 +45,7 @@ export interface ThemeRadialGradient {
 export type Theme = ThemeSolid | ThemeLinearGradient | ThemeRadialGradient;
 
 export interface ConfigBasicInfo {
+    lang: string;
     headerText: string;
     author: string | null;
     toolboxVersion: [number, number] | null;

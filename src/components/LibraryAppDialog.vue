@@ -2,43 +2,43 @@
     <Dialog class="width-dialog dialog-no-select" v-model:visible="visible" modal :header="dialogHeader">
         <div class="flex flex-col gap-8">
             <div class="flex align-center">
-                <label class="dialog-label no-select" for="dialog-app-name">Name</label>
-                <InputText id="dialog-app-name" class="flex-grow" size="small" v-model="dialogAppMetadata.name" placeholder="Required" autocomplete="off" />
+                <label class="dialog-label no-select" for="dialog-app-name">{{ t('LibraryAppDialog.labelName') }}</label>
+                <InputText id="dialog-app-name" class="flex-grow" size="small" v-model="dialogAppMetadata.name" :placeholder="t('DialogCommon.placeholderRequired')" autocomplete="off" />
             </div>
             <div class="flex align-center">
-                <label class="dialog-label no-select" for="dialog-app-desc">Description</label>
-                <InputText id="dialog-app-desc" class="flex-grow" size="small" v-model="dialogAppMetadata.desc" placeholder="Optional" autocomplete="off" />
+                <label class="dialog-label no-select" for="dialog-app-desc">{{ t('LibraryAppDialog.labelDesc') }}</label>
+                <InputText id="dialog-app-desc" class="flex-grow" size="small" v-model="dialogAppMetadata.desc" :placeholder="t('DialogCommon.placeholderOptional')" autocomplete="off" />
             </div>
             <div class="flex align-center">
-                <label class="dialog-label no-select" for="dialog-app-path">App path</label>
+                <label class="dialog-label no-select" for="dialog-app-path">{{ t('LibraryAppDialog.labelAppPath') }}</label>
                 <div class="flex gap-4 flex-grow">
-                    <InputText id="dialog-app-path" class="flex-grow" size="small" v-model="dialogAppMetadata.appPath" placeholder="Required" autocomplete="off" />
+                    <InputText id="dialog-app-path" class="flex-grow" size="small" v-model="dialogAppMetadata.appPath" :placeholder="t('DialogCommon.placeholderRequired')" autocomplete="off" />
                     <Button icon="pi pi-folder-open" size="small" variant="outlined" @click="browseAppPath" />
                 </div>
             </div>
             <div class="flex align-center">
-                <label class="dialog-label no-select" for="dialog-app-launch-args">Launch args</label>
-                <InputText id="dialog-app-launch-args" class="flex-grow" size="small" v-model="dialogAppMetadata.launchArgs" placeholder="Optional" autocomplete="off" />
+                <label class="dialog-label no-select" for="dialog-app-launch-args">{{ t('LibraryAppDialog.labelLaunchArgs') }}</label>
+                <InputText id="dialog-app-launch-args" class="flex-grow" size="small" v-model="dialogAppMetadata.launchArgs" :placeholder="t('DialogCommon.placeholderOptional')" autocomplete="off" />
             </div>
             <div class="flex align-center">
-                <label class="dialog-label no-select" for="dialog-app-working-dir">Working directory</label>
+                <label class="dialog-label no-select" for="dialog-app-working-dir">{{ t('LibraryAppDialog.labelWorkingDir') }}</label>
                 <div class="flex gap-4 flex-grow">
-                    <InputText id="dialog-app-working-dir" class="flex-grow" size="small" v-model="dialogAppMetadata.workingDir" placeholder="Required" autocomplete="off" />
+                    <InputText id="dialog-app-working-dir" class="flex-grow" size="small" v-model="dialogAppMetadata.workingDir" :placeholder="t('DialogCommon.placeholderRequired')" autocomplete="off" />
                     <Button icon="pi pi-folder-open" size="small" variant="outlined" @click="browseWorkingDir" />
                 </div>
             </div>
             <div class="flex align-center">
-                <span class="flex-grow dialog-label no-select">Icon</span>
+                <span class="flex-grow dialog-label no-select">{{ t('LibraryAppDialog.labelIcon') }}</span>
                 <div class="flex align-center gap-4">
                     <img v-if="dialogAppMetadata.iconUrl !== ''" class="icon-slot" :src="dialogAppMetadata.iconUrl" width="48" height="48" draggable="false" />
-                    <span v-else class="icon-slot no-select">No icon</span>
+                    <span v-else class="icon-slot no-select">{{ t('LibraryAppDialog.noIconPlaceholder') }}</span>
                     <Button icon="pi pi-folder-open" size="small" variant="outlined" @click="browseIcon" />
                 </div>
             </div>
             <div class="flex align-center gap-4">
                 <Button
                     icon="pi pi-folder"
-                    label="Use relative path"
+                    :label="t('LibraryAppDialog.btnUseRelativePath')"
                     size="small"
                     variant="outlined"
                     :disabled="dialogAppMetadata.appPath === '' && dialogAppMetadata.workingDir === ''"
@@ -46,7 +46,7 @@
                 />
                 <Button
                     icon="pi pi-image"
-                    label="Use built-in app icon"
+                    :label="t('LibraryAppDialog.btnUseBuiltInAppIcon')"
                     size="small"
                     variant="outlined"
                     :disabled="dialogAppMetadata.appPath === ''"
@@ -55,7 +55,7 @@
             </div>
         </div>
         <template #footer>
-            <Button label="Cancel" size="small" severity="secondary" @click="visible = false" />
+            <Button :label="t('DialogCommon.btnCancel')" size="small" severity="secondary" @click="visible = false" />
             <Button :label="dialogSubmitBtnLabel" size="small" :disabled="!dialogAppMetadataValid" @click="submitDialog" />
         </template>
     </Dialog>
@@ -63,19 +63,20 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { useI18n } from "vue-i18n";
 import { open } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import { path as pathApi } from '@tauri-apps/api';
-import { useConfirm } from 'primevue/useconfirm';
-import { messageDialog } from '../util';
+import { useMessageDialog } from '../util';
 import { AppMetadata } from '../types';
-const confirm = useConfirm();
+const { t } = useI18n();
+const messageDialog = useMessageDialog();
 
 const visible = defineModel<boolean>("visible", { default: false });
 const { apps, editMode, editApp = null } = defineProps<{ apps: AppMetadata[], editMode: boolean, editApp?: AppMetadata | null }>();
 const emit = defineEmits<{ updateApp: [ newApp: AppMetadata ] }>();
-const dialogHeader = computed(() => editMode ? `Edit "${editApp?.name}"` : "Add app");
-const dialogSubmitBtnLabel = computed(() => editMode ? "Save" : "Add");
+const dialogHeader = computed(() => editMode ? t('LibraryAppDialog.titleEditApp', [editApp?.name]) : t('LibraryAppDialog.titleAddApp'));
+const dialogSubmitBtnLabel = computed(() => editMode ? t('DialogCommon.btnSave') : t('DialogCommon.btnAdd'));
 const dialogAppMetadata = ref<AppMetadata>({
     name: "",
     appPath: "",
@@ -86,7 +87,7 @@ const dialogAppMetadata = ref<AppMetadata>({
 });
 const dialogAppMetadataValid = computed(() => {
     return dialogAppMetadata.value?.name.trim() !== "" &&
-        (editApp?.name === dialogAppMetadata.value?.name.trim() || apps.findIndex(app => app.name === dialogAppMetadata.value?.name) === -1) &&
+        ((editMode && editApp?.name === dialogAppMetadata.value?.name.trim()) || apps.findIndex(app => app.name === dialogAppMetadata.value?.name) === -1) &&
         dialogAppMetadata.value?.appPath.trim() !== "" &&
         dialogAppMetadata.value?.workingDir.trim() !== "" &&
         dialogAppMetadata.value?.iconUrl.trim() !== "";
@@ -110,10 +111,10 @@ watch(visible, newValue => {
 
 const browseAppPath = async () => {
     const path = await open({
-        title: "Select app path",
+        title: t('LibraryAppDialog.titleSelectAppPath'),
         directory: false,
         filters: [{
-            name: "Executable files",
+            name: t('LibraryAppDialog.filterExecutable'),
             extensions: ["exe", "bat", "cmd"]
         }]
     });
@@ -125,7 +126,7 @@ const browseAppPath = async () => {
 
 const browseWorkingDir = async () => {
     const dir = await open({
-        title: "Select working directory",
+        title: t('LibraryAppDialog.titleSelectWorkingDir'),
         directory: true
     });
     if (dir) {
@@ -135,10 +136,10 @@ const browseWorkingDir = async () => {
 
 const browseIcon = async () => {
     const iconPath = await open({
-        title: "Select app icon",
+        title: t('LibraryAppDialog.titleSelectIcon'),
         directory: false,
         filters: [{
-            name: "Image files",
+            name: t('LibraryAppDialog.filterImage'),
             extensions: ["bmp", "gif", "jpg", "jpeg", "png", "svg", "webp", "tif", "tiff"]
         }]
     });
@@ -157,7 +158,7 @@ const useRelativePath = async () => {
         if (relativeAppPath) {
             dialogAppMetadata.value.appPath = relativeAppPath;
         } else {
-            messageDialog(confirm, "Use relative path", "The working directory of the toolbox must be the prefix of app path.", "warning");
+            messageDialog(t('LibraryAppDialog.titleUseRelativePath'), t('LibraryAppDialog.msgAppPathPrefix'), "warning");
             return;
         }
     }
@@ -166,7 +167,7 @@ const useRelativePath = async () => {
         if (relativeWorkingDir) {
             dialogAppMetadata.value.workingDir = relativeWorkingDir;
         } else {
-            messageDialog(confirm, "Use relative path", "The working directory of the toolbox must be the prefix of working directory.", "warning");
+            messageDialog(t('LibraryAppDialog.titleUseRelativePath'), t('LibraryAppDialog.msgWorkingDirPrefix'), "warning");
             return;
         }
     }

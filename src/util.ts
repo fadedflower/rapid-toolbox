@@ -1,49 +1,47 @@
-import { ConfirmationOptions } from "primevue/confirmationoptions";
+import { useConfirm } from "primevue/useconfirm";
+import { useI18n } from "vue-i18n";
 import { Theme, ThemeColor } from "./types";
 
 type MessageDialogIcon = "info" | "warning" | "error" | "success";
-interface ConfirmInstance {
-    require: (option: ConfirmationOptions) => void;
-    close: () => void;
-};
 
-export function messageDialog(confirm: ConfirmInstance, header: string, message: string, icon: MessageDialogIcon = "info", onClose?: () => void) {
-    let iconClass = "";
-    switch (icon) {
-        case "info":
-            iconClass = "pi pi-info-circle";
-            break;
-        case "warning":
-            iconClass = "pi pi-exclamation-triangle";
-            break;
-        case "error":
-            iconClass = "pi pi-times-circle";
-            break;
-        case "success":
-            iconClass = "pi pi-check-circle";
-            break;
-    }
-
-    confirm.require({
-        message,
-        header,
-        icon: iconClass,
-        acceptProps: {
-            label: 'OK',
-            size: 'small'
-        },
-        rejectClass: 'hidden',
-        accept() {
-            if (onClose) {
-                onClose();
-            }
-        },
-        onHide() {
-            if (onClose) {
-                onClose();
-            }
+export function useMessageDialog() {
+    const confirm = useConfirm();
+    const { t } = useI18n();
+    const messageDialog = (header: string, message: string, icon: MessageDialogIcon = "info", onClose?: () => void) => {
+        let iconClass = "";
+        switch (icon) {
+            case "info":
+                iconClass = "pi pi-info-circle";
+                break;
+            case "warning":
+                iconClass = "pi pi-exclamation-triangle";
+                break;
+            case "error":
+                iconClass = "pi pi-times-circle";
+                break;
+            case "success":
+                iconClass = "pi pi-check-circle";
+                break;
         }
-    });
+
+        confirm.require({
+            message,
+            header,
+            icon: iconClass,
+            acceptProps: {
+                label: t('DialogCommon.btnOK'),
+                size: 'small'
+            },
+            rejectClass: 'hidden',
+            accept() {
+                if (onClose) onClose();
+            },
+            onHide() {
+                if (onClose) onClose();
+            }
+        });
+    };
+    return messageDialog;
 }
 
 export function getThemeColorCssValue(color: ThemeColor) {

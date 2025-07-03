@@ -1,5 +1,7 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { createI18n } from "vue-i18n";
+import messages, { MessageSchema, Locales } from "./i18n";
 import PrimeVue from "primevue/config";
 import ConfirmationService from 'primevue/confirmationservice';
 import Tooltip from "primevue/tooltip";
@@ -45,6 +47,12 @@ const AppPreset = definePreset(Aura, {
 
 createApp(WindowFrame)
     .use(createPinia())
+    .use(createI18n<[MessageSchema], Locales>({
+        legacy: false,
+        locale: "en",
+        fallbackLocale: "en",
+        messages
+    }))
     .use(ConfirmationService)
     .directive("tooltip", Tooltip)
     .use(PrimeVue, {

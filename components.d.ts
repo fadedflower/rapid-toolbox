@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AboutDialog: typeof import('./src/components/AboutDialog.vue')['default']
     BlockUI: typeof import('primevue/blockui')['default']
     Button: typeof import('primevue/button')['default']
     ButtonGroup: typeof import('primevue/buttongroup')['default']
@@ -30,6 +31,7 @@ declare module 'vue' {
     Popover: typeof import('primevue/popover')['default']
     ScrollPanel: typeof import('primevue/scrollpanel')['default']
     Select: typeof import('primevue/select')['default']
+    SettingsDialog: typeof import('./src/components/SettingsDialog.vue')['default']
     Splitter: typeof import('primevue/splitter')['default']
     SplitterPanel: typeof import('primevue/splitterpanel')['default']
     ThemeColorPicker: typeof import('./src/components/ThemeColorPicker.vue')['default']

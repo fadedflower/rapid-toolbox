@@ -1,8 +1,9 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import Components from 'unplugin-vue-components/vite';
-import { PrimeVueResolver } from '@primevue/auto-import-resolver';
+import Components from "unplugin-vue-components/vite";
+import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { visualizer } from "rollup-plugin-visualizer";
+import replace from "@rollup/plugin-replace";
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
@@ -19,6 +20,12 @@ export default defineConfig(async () => ({
       filename: "stats.html",
       gzipSize: true,
       brotliSize: true
+    }),
+    replace({
+      preventAssignment: true,
+      values: {
+        __VUE_I18N_LEGACY_API__: "false"
+      }
     })
   ],
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
