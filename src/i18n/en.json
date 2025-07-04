@@ -81,7 +81,7 @@
         "selectPlaceholder": "Select apps",
         "selectEmptySelection": "No selected apps",
         "selectEmptyFilter": "No apps found",
-        "selectEmpty": "No available apps",
+        "selectEmpty": "No available apps. To add more apps, head to App Library.",
         "selectMultipleSelection": "{0} apps selected"
     },
     "AppLibraryView": {
@@ -95,7 +95,7 @@
         "columnAppPath": "App path",
         "columnLaunchArgs": "Launch args",
         "columnWorkingDir": "Working directory",
-        "emptyPlaceholder": "No apps available",
+        "emptyPlaceholder": "No apps available. To add apps, use the plus button.",
         "notFoundPlaceholder": "No apps found",
         "titleRemoveApp": "Remove app",
         "msgConfirmRemoval": "Do you want to remove app \"{0}\"?",

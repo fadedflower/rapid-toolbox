@@ -81,7 +81,7 @@
         "selectPlaceholder": "选择应用",
         "selectEmptySelection": "未选定应用",
         "selectEmptyFilter": "未找到应用",
-        "selectEmpty": "无可用应用",
+        "selectEmpty": "无可用应用。要添加更多应用，请前往应用库。",
         "selectMultipleSelection": "已选择 {0} 个应用"
     },
     "AppLibraryView": {
@@ -95,7 +95,7 @@
         "columnAppPath": "应用路径",
         "columnLaunchArgs": "启动参数",
         "columnWorkingDir": "工作目录",
-        "emptyPlaceholder": "无可用应用",
+        "emptyPlaceholder": "无可用应用。要添加应用，请使用加号按钮。",
         "notFoundPlaceholder": "未找到应用",
         "titleRemoveApp": "移除应用",
         "msgConfirmRemoval": "你想要移除应用“{0}”吗？",
