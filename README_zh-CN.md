@@ -16,8 +16,8 @@
 
 ## 屏幕截图
 
-![Screenshot1](D:\source\rapid-toolbox\images\Screenshot1.png)
+![Screenshot1](images/Screenshot1.png)
 
-![Screenshot1](D:\source\rapid-toolbox\images\Screenshot2.png)
+![Screenshot1](images/Screenshot2.png)
 
 ![Screenshot1](images/Screenshot3.png)
