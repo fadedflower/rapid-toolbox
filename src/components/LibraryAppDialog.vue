@@ -123,6 +123,9 @@ const browseAppPath = async () => {
     if (path) {
         dialogAppMetadata.value.appPath = path;
         dialogAppMetadata.value.workingDir = await pathApi.dirname(path);
+        if (dialogAppMetadata.value.name === "") {
+            dialogAppMetadata.value.name = await pathApi.basename(path, `.${await pathApi.extname(path)}`);
+        }
     }
 };
 
