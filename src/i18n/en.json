@@ -44,7 +44,7 @@
         "title": "About",
         "version": "Version: {0}.{1}",
         "author": "Author: {0}",
-        "builtUsing": "Built using {0}",
+        "builtUsing": "Built using {0} {1}",
         "poweredBy": "Powered by {0} and {1}"
     },
     "CategoryList": {

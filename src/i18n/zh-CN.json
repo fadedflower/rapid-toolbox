@@ -44,7 +44,7 @@
         "title": "关于",
         "version": "版本：{0}.{1}",
         "author": "作者：{0}",
-        "builtUsing": "使用 {0} 构建",
+        "builtUsing": "使用 {0} {1} 构建",
         "poweredBy": "由 {0} 和 {1} 提供支持"
     },
     "CategoryList": {

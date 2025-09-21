@@ -6,6 +6,7 @@
             <span v-show="configBasicInfo.author">{{ t("AboutDialog.author", [configBasicInfo.author || ""]) }}</span>
             <i18n-t keypath="AboutDialog.builtUsing" tag="span">
                 <a class="dialog-link" href="#" @click="openUrl('https://github.com/fadedflower/rapid-toolbox')">Rapid Toolbox</a>
+                <span>{{ version }}</span>
             </i18n-t>
             <i18n-t keypath="AboutDialog.poweredBy" tag="span">
                 <a class="dialog-link" href="#" @click="openUrl('https://tauri.app/')">Tauri</a>
@@ -24,6 +25,9 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { ConfigBasicInfo } from "../types";
 const { t } = useI18n();
 
+declare const __APP_VERSION__: string;
+
+const version = __APP_VERSION__;
 const visible = defineModel<boolean>("visible");
 const { configBasicInfo } = defineProps<{ configBasicInfo: ConfigBasicInfo }>();
 </script>
