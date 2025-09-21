@@ -27,6 +27,7 @@ pub fn run() {
             get_config_basic_info,
             set_config_basic_info,
             launch_app,
+            open_app_file_location,
             get_category_list,
             get_all_app_list,
             get_app_list_by_category,

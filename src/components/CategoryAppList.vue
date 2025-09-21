@@ -128,6 +128,11 @@ const launchApp = async (appName: string) => {
         messageDialog(t("CategoryAppList.titleLaunchApp"), t("CategoryAppList.msgFailedToLaunchApp", [appName]), "error");
     }
 };
+const openFileLocation = async (appName: string) => {
+    if (!await invoke<boolean>("open_app_file_location", { appName })) {
+        messageDialog(t("CategoryAppList.titleOpenFileLocation"), t("CategoryAppList.msgFailedToOpenFileLocation", [appName]), "error");
+    }
+};
 const updateApps = async (newApps: string[]) => {
     if (await invoke<boolean>("update_apps_in_category", { apps: newApps, category })) {
         reloadApps();
@@ -202,6 +207,7 @@ const selectedContextMenuAppMetadata = computed(() => {
 const appMenu = useTemplateRef("app-menu");
 const appMenuItems = computed<MenuItem[]>(() => [
     { label: t("CategoryAppList.menuLaunch"), icon: "pi pi-play", visible: () => selectedContextMenuApp.value !== null, command: () => launchApp(selectedContextMenuApp.value!) },
+    { label: t("CategoryAppList.menuOpenFileLocation"), icon: "pi pi-folder-open", visible: () => selectedContextMenuApp.value !== null, command: () => openFileLocation(selectedContextMenuApp.value!) },
     { label: t("CategoryAppList.menuEdit"), icon: "pi pi-pencil", visible: () => selectedContextMenuApp.value !== null, command: () => editAppDialogVisible.value = true },
     { label: t("CategoryAppList.menuRemove"), icon: "pi pi-trash", visible: () => selectedContextMenuApp.value !== null, command: confirmRemoval },
     { separator: true, visible: () => selectedContextMenuApp.value !== null },

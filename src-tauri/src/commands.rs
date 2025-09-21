@@ -127,6 +127,31 @@ pub fn launch_app(config_state: State<Mutex<Config>>, app_name: String) -> bool 
 }
 
 #[command]
+pub fn open_app_file_location(config_state: State<Mutex<Config>>, app_name: String) -> bool {
+    let config = config_state.lock().unwrap();
+    if let Some(metadata) = config.get_app(&app_name) {
+        if !metadata.app_path.is_file() {
+            return false;
+        }
+        let absolute_app_path = absolute(&metadata.app_path);
+        if absolute_app_path.is_err() {
+            return false;
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            const DETACHED_PROCESS: u32 = 0x00000008;
+            let mut command = Command::new("explorer");
+            command.arg(format!("/select,")).arg(absolute_app_path.unwrap())
+                .creation_flags(DETACHED_PROCESS);
+            command.spawn().is_ok()
+        }
+    } else {
+        false
+    }
+}
+
+#[command]
 pub fn get_category_list(config_state: State<Mutex<Config>>) -> Vec<String> {
     let config = config_state.lock().unwrap();
     config.get_category_list().into_iter().cloned().collect()
