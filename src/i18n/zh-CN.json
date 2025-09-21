@@ -50,7 +50,7 @@
     "CategoryList": {
         "title": "类别",
         "addCategory": "添加类别",
-        "sortCategories": "排序类别",
+        "sortCategories": "按名称排序",
         "renameCategory": "重命名类别",
         "emptyPlaceholder": "无可用类别",
         "dialogPlaceholder": "名称",
@@ -66,7 +66,7 @@
     "CategoryAppList": {
         "title": "应用",
         "addApps": "添加应用",
-        "sortApps": "排序应用",
+        "sortApps": "按名称排序",
         "emptyPlaceholder": "无可用应用",
         "notFoundPlaceholder": "未找到应用",
         "noDescPlaceholder": "<无描述>",

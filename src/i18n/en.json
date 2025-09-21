@@ -50,7 +50,7 @@
     "CategoryList": {
         "title": "Category",
         "addCategory": "Add category",
-        "sortCategories": "Sort categories",
+        "sortCategories": "Sort by name",
         "renameCategory": "Rename category",
         "emptyPlaceholder": "No categories available",
         "dialogPlaceholder": "Name",
@@ -66,7 +66,7 @@
     "CategoryAppList": {
         "title": "Apps",
         "addApps": "Add apps",
-        "sortApps": "Sort apps",
+        "sortApps": "Sort by name",
         "emptyPlaceholder": "No apps available",
         "notFoundPlaceholder": "No apps found",
         "noDescPlaceholder": "< No description >",
