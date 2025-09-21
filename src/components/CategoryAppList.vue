@@ -59,9 +59,9 @@
             optionLabel="name"
             filter
             showClear
-            :placeholder="t('CategoryAppList.selectPlaceholder')"
+            :disabled="dialogApps.length === 0"
+            :placeholder="dialogApps.length === 0 ? t('CategoryAppList.selectEmpty') : t('CategoryAppList.selectPlaceholder')"
             :empty-selection-message="t('CategoryAppList.selectEmptySelection')"
-            :empty-message="t('CategoryAppList.selectEmpty')"
             :selected-items-label="t('CategoryAppList.selectMultipleSelection', ['{0}'])"
             :empty-filter-message="t('CategoryAppList.selectEmptyFilter')"
         >
@@ -74,7 +74,7 @@
         </MultiSelect>
         <template #footer>
             <Button :label="t('DialogCommon.btnCancel')" size="small" severity="secondary" @click="addDialogVisible = false" />
-            <Button :label="t('DialogCommon.btnAdd')" size="small" @click="addApps" />
+            <Button :label="t('DialogCommon.btnAdd')" size="small" :disabled="dialogSelectedApps.length === 0" @click="addApps" />
         </template>
     </Dialog>
     <ContextMenu ref="app-menu" :model="appMenuItems" />
