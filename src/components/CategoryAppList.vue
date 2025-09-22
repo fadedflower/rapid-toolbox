@@ -221,6 +221,10 @@ const keyboardHandler = (key: string) => {
             case "ArrowDown":
                 selectedApp.value = apps.value[selectedAppIndex.value + 9 < apps.value.length ? selectedAppIndex.value + 9 : selectedAppIndex.value].name;
                 break;
+            case "Delete":
+                selectedContextMenuApp.value = selectedApp.value;
+                confirmRemoval();
+                break;
         };
     }
 };
