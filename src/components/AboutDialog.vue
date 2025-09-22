@@ -20,16 +20,18 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { useI18n, I18nT } from "vue-i18n";
+import { getVersion } from '@tauri-apps/api/app';
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { ConfigBasicInfo } from "../types";
 const { t } = useI18n();
 
-declare const __APP_VERSION__: string;
-
-const version = __APP_VERSION__;
+const version = ref("");
 const visible = defineModel<boolean>("visible");
 const { configBasicInfo } = defineProps<{ configBasicInfo: ConfigBasicInfo }>();
+
+onMounted(async () => version.value = await getVersion());
 </script>
 
 <style scoped>
