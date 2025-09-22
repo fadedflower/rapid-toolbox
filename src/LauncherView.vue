@@ -1,22 +1,26 @@
 <template>
-    <main class="flex">
+    <main
+        class="flex"
+        @keydown="appListRef?.keyboardHandler($event.key)"
+    >
         <Splitter id="launcher-splitter" class="flex flex-basis-full">
             <SplitterPanel class="flex launcher-splitter-panel" :size="20" :min-size="20">
                 <CategoryList v-model="selectedCategory" />
             </SplitterPanel>
             <SplitterPanel class="launcher-splitter-panel" :size="80" :min-size="70">
-                <CategoryAppList :category="selectedCategory" :search-keyword="searchKeyword" />
+                <CategoryAppList ref="app-list" :category="selectedCategory" :search-keyword="searchKeyword" />
             </SplitterPanel>
         </Splitter>
     </main>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, useTemplateRef } from "vue";
 import CategoryList from "./components/CategoryList.vue";
 import CategoryAppList from "./components/CategoryAppList.vue";
 const { searchKeyword } = defineProps<{ searchKeyword: string }>();
 const selectedCategory = ref<string | null>(null);
+const appListRef = useTemplateRef("app-list");
 </script>
 
 <style scoped>

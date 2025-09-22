@@ -108,10 +108,13 @@ const emptyMessage = computed(() => {
     return searchKeyword === "" ? t("CategoryAppList.emptyPlaceholder") : t("CategoryAppList.notFoundPlaceholder");
 });
 const apps = ref<AppMetadata[]>([]);
-const selectedApp = ref<string | null>();
+const selectedApp = ref<string | null>(null);
 const selectedAppDesc = computed(() => {
-    return selectedApp.value ? apps.value.find(a => a.name === selectedApp.value)!.desc : t("CategoryAppList.selectAppInstruction");
+    return selectedApp.value !== null ? apps.value.find(a => a.name === selectedApp.value)!.desc : t("CategoryAppList.selectAppInstruction");
 });
+const selectedAppIndex = computed(() => {
+    return selectedApp.value !== null ? apps.value.findIndex(a => a.name === selectedApp.value) : -1;
+})
 const reloadApps = async () => {
     apps.value = [];
     if (category !== null) {
@@ -200,9 +203,32 @@ const confirmRemoval = () => {
     });
 };
 
+const keyboardHandler = (key: string) => {
+    if (selectedApp.value !== null) {
+        switch (key) {
+            case "Enter":
+                launchApp(selectedApp.value);
+                break;
+            case "ArrowLeft":
+                selectedApp.value = apps.value[Math.max(selectedAppIndex.value - 1, 0)].name;
+                break;
+            case "ArrowRight":
+                selectedApp.value = apps.value[Math.min(selectedAppIndex.value + 1, apps.value.length - 1)].name;
+                break;
+            case "ArrowUp":
+                selectedApp.value = apps.value[selectedAppIndex.value >= 9 ? selectedAppIndex.value - 9 : selectedAppIndex.value].name;
+                break;
+            case "ArrowDown":
+                selectedApp.value = apps.value[selectedAppIndex.value + 9 < apps.value.length ? selectedAppIndex.value + 9 : selectedAppIndex.value].name;
+                break;
+        };
+    }
+};
+defineExpose({ keyboardHandler });
+
 const selectedContextMenuApp = ref<string | null>(null);
 const selectedContextMenuAppMetadata = computed(() => {
-    return selectedContextMenuApp.value ? apps.value.find(app => app.name === selectedContextMenuApp.value) : null;
+    return selectedContextMenuApp.value !== null ? apps.value.find(app => app.name === selectedContextMenuApp.value) : null;
 });
 const appMenu = useTemplateRef("app-menu");
 const appMenuItems = computed<MenuItem[]>(() => [
