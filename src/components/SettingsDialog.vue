@@ -24,7 +24,7 @@
         <div class="flex flex-col gap-8">
             <div class="flex align-center">
                 <span class="dialog-label no-select">{{ t('SettingsDialog.labelPreset') }}</span>
-                <Select class="flex-grow" size="small" v-model="dialogSettings.theme" :options="dialogThemePresets" option-label="name" option-value="theme" />
+                <Select class="flex-grow" size="small" v-model="dialogSettings.theme" :options="dialogThemePresets" option-label="name" option-value="theme" @change="onPresetSelect" />
             </div>
             <div class="flex align-center">
                 <span class="dialog-label no-select">{{ t('SettingsDialog.labelBackgroundType') }}</span>
@@ -142,14 +142,17 @@ const dialogThemeColor2 = computed<ThemeColor>({
         }
     }
 });
+const onPresetSelect = () => {
+    // deep copy the theme preset to avoid messing with the original preset
+    dialogSettings.value.theme = cloneTheme(dialogSettings.value.theme);
+};
 const saveSettings = async () => {
     const basicInfo = {
         lang: dialogSettings.value.lang,
         headerText: dialogSettings.value.headerText.trim(),
         author: dialogSettings.value.author.trim() === "" ? null : dialogSettings.value.author.trim(),
         toolboxVersion: dialogSettings.value.toolboxVersion === "" ? null : dialogSettings.value.toolboxVersion.split(".").map(Number) as [number, number],
-        // deep copy the theme to avoid messing with configBasicInfo
-        theme: cloneTheme(dialogSettings.value.theme)
+        theme: dialogSettings.value.theme
     };
     if (await invoke("set_config_basic_info", { basicInfo })) {
         locale.value = basicInfo.lang;
