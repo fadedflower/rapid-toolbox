@@ -25,7 +25,7 @@
                 </div>
             </div>
             <ScrollPanel v-if="appsShown.length > 0" class="app-list-scroll-panel scroll-panel">
-                <div class="app-list-items flex flex-wrap">
+                <div class="app-list-items flex flex-wrap" ref="app-list-container">
                     <GridAppItem
                         v-for="app in appsShown"
                         :key="app.name"
@@ -113,8 +113,8 @@ const selectedAppDesc = computed(() => {
     return selectedApp.value !== null ? apps.value.find(a => a.name === selectedApp.value)!.desc : t("CategoryAppList.selectAppInstruction");
 });
 const selectedAppIndex = computed(() => {
-    return selectedApp.value !== null ? apps.value.findIndex(a => a.name === selectedApp.value) : -1;
-})
+    return selectedApp.value !== null ? appsShown.value.findIndex(a => a.name === selectedApp.value) : -1;
+});
 const reloadApps = async () => {
     apps.value = [];
     if (category !== null) {
@@ -125,6 +125,7 @@ const reloadApps = async () => {
     }
 };
 watch(() => category, reloadApps);
+watch(() => searchKeyword, () => selectedApp.value = null);
 
 const launchApp = async (appName: string) => {
     if (!await invoke<boolean>("launch_app", { appName })) {
@@ -203,23 +204,26 @@ const confirmRemoval = () => {
     });
 };
 
+const appListContainerRef = useTemplateRef("app-list-container");
 const keyboardHandler = (key: string) => {
     if (selectedApp.value !== null) {
+        const { width: listWidth } = getComputedStyle(appListContainerRef.value!);
+        const rowItemsNum = Math.floor(parseFloat(listWidth.substring(0, listWidth.length - 2)) / 86);
         switch (key) {
             case "Enter":
                 launchApp(selectedApp.value);
                 break;
             case "ArrowLeft":
-                selectedApp.value = apps.value[Math.max(selectedAppIndex.value - 1, 0)].name;
+                selectedApp.value = appsShown.value[Math.max(selectedAppIndex.value - 1, 0)].name;
                 break;
             case "ArrowRight":
-                selectedApp.value = apps.value[Math.min(selectedAppIndex.value + 1, apps.value.length - 1)].name;
+                selectedApp.value = appsShown.value[Math.min(selectedAppIndex.value + 1, appsShown.value.length - 1)].name;
                 break;
             case "ArrowUp":
-                selectedApp.value = apps.value[selectedAppIndex.value >= 9 ? selectedAppIndex.value - 9 : selectedAppIndex.value].name;
+                selectedApp.value = appsShown.value[selectedAppIndex.value >= rowItemsNum ? selectedAppIndex.value - rowItemsNum : selectedAppIndex.value].name;
                 break;
             case "ArrowDown":
-                selectedApp.value = apps.value[selectedAppIndex.value + 9 < apps.value.length ? selectedAppIndex.value + 9 : selectedAppIndex.value].name;
+                selectedApp.value = appsShown.value[selectedAppIndex.value + rowItemsNum < appsShown.value.length ? selectedAppIndex.value + rowItemsNum : selectedAppIndex.value].name;
                 break;
             case "Delete":
                 selectedContextMenuApp.value = selectedApp.value;
