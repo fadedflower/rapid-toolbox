@@ -102,6 +102,9 @@
         "notFoundPlaceholder": "No apps found",
         "titleRemoveApp": "Remove app",
         "msgConfirmRemoval": "Do you want to remove app \"{0}\"?",
+        "titleLaunchApp": "Launch app",
+        "msgFailedToLaunchApp": "Failed to launch app \"{0}\". Please ensure the app config is correct.",
+        "menuLaunch": "Launch",
         "menuEdit": "Edit",
         "menuRemove": "Remove"
     },

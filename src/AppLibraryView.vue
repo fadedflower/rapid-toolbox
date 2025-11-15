@@ -9,8 +9,9 @@
             sort-field="name"
             :sort-order="1"
             scroll-height="calc(var(--view-height) - 46px)"
+            :virtualScrollerOptions="{ itemSize: 30 }"
             selectionMode="single"
-            :metaKeySelection="false"
+            metaKeySelection
             v-model:selection="selectedApp"
             v-model:context-menu-selection="selectedContextMenuApp"
             v-model:filters="filters"
@@ -18,9 +19,11 @@
             table-style="max-width: 100%"
             @row-contextmenu="onContextMenu"
             @keydown.delete="removeOnKeyDown"
-            @keydown.e="editOnKeyDown"
+            @keydown.space="editOnKeyDown"
             @keydown.up="navigateOnKeyDown"
             @keydown.down="navigateOnKeyDown"
+            @keydown.enter="(event: KeyboardEvent) => { if (!event.ctrlKey) launchApp() }"
+            @dblclick="launchApp"
             scrollable
             resizable-columns
             show-gridlines
@@ -93,10 +96,12 @@ import { useConfirm } from 'primevue/useconfirm';
 import type { MenuItem } from "primevue/menuitem";
 import { FilterMatchMode } from '@primevue/core/api';
 import { AppMetadata } from './types';
+import { useMessageDialog } from "./util";
 import { useSingleMenu, useAppList } from "./stores";
 import LibraryAppDialog from './components/LibraryAppDialog.vue';
 const { t } = useI18n();
 const confirm = useConfirm();
+const messageDialog = useMessageDialog();
 const singleMenu = useSingleMenu();
 const menuId = "library-app-menu";
 const appListStore = useAppList();
@@ -159,10 +164,16 @@ const confirmRemoval = () => {
         }
     });
 };
+const launchApp = async () => {
+    if (selectedApp.value !== null && !await invoke<boolean>("launch_app", { appName: selectedApp.value?.name })) {
+        messageDialog(t("AppLibraryView.titleLaunchApp"), t("AppLibraryView.msgFailedToLaunchApp", [selectedApp.value?.name]), "error");
+    }
+};
 
 const selectedContextMenuApp = ref<AppMetadata | null>(null);
 const appMenu = useTemplateRef("app-menu");
 const appMenuItems = ref<MenuItem[]>([
+    { label: t("AppLibraryView.menuLaunch"), icon: "pi pi-play", command: launchApp },
     { label: t("AppLibraryView.menuEdit"), icon: "pi pi-pencil", command: showEditAppDialog },
     { label: t("AppLibraryView.menuRemove"), icon: "pi pi-trash", command: confirmRemoval }
 ]);

@@ -225,6 +225,10 @@ const keyboardHandler = (key: string) => {
             case "ArrowDown":
                 selectedApp.value = appsShown.value[selectedAppIndex.value + rowItemsNum < appsShown.value.length ? selectedAppIndex.value + rowItemsNum : selectedAppIndex.value].name;
                 break;
+            case " ":
+                selectedContextMenuApp.value = selectedApp.value;
+                editAppDialogVisible.value = true;
+                break;
             case "Delete":
                 selectedContextMenuApp.value = selectedApp.value;
                 confirmRemoval();
