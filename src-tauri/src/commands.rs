@@ -104,7 +104,8 @@ pub fn launch_app(config_state: State<Mutex<Config>>, app_name: String) -> bool 
             const DETACHED_PROCESS: u32 = 0x00000008;
             const CREATE_NEW_CONSOLE: u32 = 0x00000010;
             let creation_flag: u32;
-            if let Some(ext) = metadata.app_path.extension() && (ext == "bat" || ext == "cmd") {
+            if let Some(ext) = metadata.app_path.extension() &&
+                (ext.to_ascii_lowercase() == "bat" || ext.to_ascii_lowercase() == "cmd") {
                 // for batch files, we should create a new console for it
                 creation_flag = CREATE_NEW_CONSOLE;
             } else {
