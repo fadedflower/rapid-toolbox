@@ -117,7 +117,7 @@ const browseAppPath = async () => {
         directory: false,
         filters: [{
             name: t('LibraryAppDialog.filterExecutable'),
-            extensions: ["exe", "bat", "cmd"]
+            extensions: ["exe", "bat", "cmd", "ps1"]
         }]
     });
     if (path) {

@@ -104,17 +104,26 @@ pub fn launch_app(config_state: State<Mutex<Config>>, app_name: String) -> bool 
             const DETACHED_PROCESS: u32 = 0x00000008;
             const CREATE_NEW_CONSOLE: u32 = 0x00000010;
             let creation_flag: u32;
+            let is_powershell_script: bool;
             if let Some(ext) = metadata.app_path.extension() &&
-                (ext.to_ascii_lowercase() == "bat" || ext.to_ascii_lowercase() == "cmd") {
-                // for batch files, we should create a new console for it
+                (ext.to_ascii_lowercase() == "bat" || ext.to_ascii_lowercase() == "cmd" || ext.to_ascii_lowercase() == "ps1") {
+                // for batch files and powershell scripts, we should create a new console for it
                 creation_flag = CREATE_NEW_CONSOLE;
+                is_powershell_script = ext.to_ascii_lowercase() == "ps1";
             } else {
                 // for other executables, we want to prevent the console window from appearing if it is a GUI app
                 creation_flag = DETACHED_PROCESS;
+                is_powershell_script = false;
             }
-            let mut command = Command::new("cmd");
-            command.arg("/C")
-                .arg(absolute_app_path.unwrap())
+            let mut command: Command;
+            if is_powershell_script {
+                command = Command::new("powershell");
+                command.arg("-File");
+            } else {
+                command = Command::new("cmd");
+                command.arg("/C");
+            }
+            command.arg(absolute_app_path.unwrap())
                 .current_dir(absolute_working_dir.unwrap())
                 .creation_flags(creation_flag);
             if !metadata.launch_args.is_empty() {
